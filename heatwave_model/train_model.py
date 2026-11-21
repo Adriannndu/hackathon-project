@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from features import load_data, build_features_by_city
+from heatwave_model.features import load_data, build_features_by_city
 
 DATA_PATH = "india_historical_weather.csv"
 MODEL_PATH = "city_models.joblib"
