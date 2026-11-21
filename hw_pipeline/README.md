@@ -26,6 +26,16 @@ itself (see `features.py`), not by the model.
 Expect a few minutes to ~20 minutes depending on the machine (3 horizons x
 (1 main fit + 5 leave-locations-out fits)).
 
+### Neighbor-city features (v2)
+
+`features.py` also adds 6 spatial features: the mean/max temperature anomaly
+of cities within 500 km, the share of them already hot, and the mean/max
+anomaly (and its 1-day change) of cities to the west/north-west within 800 km
+("upwind"). To compare with an earlier run, write results elsewhere:
+`python -m hw_pipeline.train --importance --final --out artifacts_v2`.
+At prediction time these need recent temperatures of the surrounding
+reference cities (one batched API call).
+
 ## What the output tells you
 
 For each horizon, on the test years (2022 onward):

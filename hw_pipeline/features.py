@@ -7,6 +7,8 @@ temperatures and are only ever used as targets.
 Normals ("what is a normal max temp for this city on this date") are computed
 from TRAIN_END and earlier only, so test years never leak into them.
 """
+import warnings
+
 import numpy as np
 import pandas as pd
 
@@ -96,6 +98,73 @@ def _city_table(g):
     return out, norm
 
 
+def add_neighbor_features(tab):
+    """Spatial context: how hot are the surrounding cities right now?
+
+    Heat waves travel (hot dry air usually arrives from the north-west), so
+    anomalies in nearby/upwind cities hint at what is coming 1-3 days later.
+    Uses only day-t and day-(t-1) values of the other cities (no leakage).
+
+    At prediction time this needs recent temperatures of the surrounding
+    reference cities (one batched API call for the whole city list).
+    """
+    cities = sorted(tab.city.unique())
+    n = len(cities)
+    meta = tab.groupby("city")[["latitude", "longitude"]].first().loc[cities]
+    lat, lon = np.radians(meta.latitude.values), np.radians(meta.longitude.values)
+
+    # pairwise distance (km) and bearing (degrees) from city i to city j
+    dphi, dl = lat[None, :] - lat[:, None], lon[None, :] - lon[:, None]
+    a = np.sin(dphi / 2) ** 2 + np.cos(lat[:, None]) * np.cos(lat[None, :]) * np.sin(dl / 2) ** 2
+    dist = 2 * 6371.0 * np.arcsin(np.sqrt(a))
+    yy = np.sin(dl) * np.cos(lat[None, :])
+    xx = (np.cos(lat[:, None]) * np.sin(lat[None, :])
+          - np.sin(lat[:, None]) * np.cos(lat[None, :]) * np.cos(dl))
+    bearing = (np.degrees(np.arctan2(yy, xx)) + 360) % 360
+
+    eye = np.eye(n, dtype=bool)
+    near = (dist <= 500) & ~eye                              # within 500 km
+    upwind = (dist <= 800) & (bearing >= 225) & ~eye         # to the W / NW / N, within 800 km
+
+    anom = tab.pivot(index="date", columns="city", values="anom_l0")[cities]
+    hot = (tab.pivot(index="date", columns="city", values="hot_streak")[cities] >= 1) \
+        .astype(float).where(anom.notna())
+
+    def nmean(mat, mask):
+        v = mat.values
+        num = np.nan_to_num(v) @ mask.T.astype(float)
+        den = (~np.isnan(v)).astype(float) @ mask.T.astype(float)
+        with np.errstate(invalid="ignore", divide="ignore"):
+            return np.where(den > 0, num / den, np.nan)
+
+    def nmax(mat, mask):
+        v = mat.values
+        out = np.full(v.shape, np.nan)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            for i in range(n):
+                idx = np.where(mask[i])[0]
+                if len(idx):
+                    out[:, i] = np.nanmax(v[:, idx], axis=1)
+        return out
+
+    up_mean = nmean(anom, upwind)
+    feats = {
+        "nbr_anom_mean": nmean(anom, near),
+        "nbr_anom_max": nmax(anom, near),
+        "nbr_hot_frac": nmean(hot, near),
+        "up_anom_mean": up_mean,
+        "up_anom_max": nmax(anom, upwind),
+        "up_anom_d1": up_mean - np.vstack([np.full((1, n), np.nan), up_mean[:-1]]),
+    }
+    out = tab
+    for name, arr in feats.items():
+        long = (pd.DataFrame(arr, index=anom.index, columns=cities)
+                .reset_index().melt(id_vars="date", var_name="city", value_name=name))
+        out = out.merge(long, on=["city", "date"], how="left")
+    return out
+
+
 def build_features(df):
     """Returns (table, normals) where normals is {city: 366-value Series}."""
     parts, normals = [], {}
@@ -103,7 +172,8 @@ def build_features(df):
         t, norm = _city_table(g)
         parts.append(t)
         normals[city] = norm
-    return pd.concat(parts, ignore_index=True), normals
+    tab = add_neighbor_features(pd.concat(parts, ignore_index=True))
+    return tab, normals
 
 
 def feature_columns(table):

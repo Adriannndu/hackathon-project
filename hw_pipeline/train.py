@@ -20,7 +20,9 @@ from sklearn.inspection import permutation_importance
 from sklearn.metrics import average_precision_score, brier_score_loss, precision_recall_curve
 from sklearn.model_selection import GroupKFold
 
-from .config import ARTIFACTS, HORIZONS, TRAIN_END, VAL_END
+from pathlib import Path
+
+from .config import HORIZONS, TRAIN_END, VAL_END
 from .data import load_table
 from .features import build_features, feature_columns
 
@@ -88,7 +90,8 @@ def run(args):
     print(f"  {len(feats)} features; heat-wave days: {int(tab.hw.sum()):,} "
           f"({100 * tab.hw.mean():.2f}% of days)")
 
-    ARTIFACTS.mkdir(exist_ok=True)
+    out_dir = Path(args.out)
+    out_dir.mkdir(exist_ok=True)
     results = {"cities": sorted(df.city.unique().tolist()), "features": feats, "horizons": {}}
 
     for h in HORIZONS:
@@ -161,10 +164,10 @@ def run(args):
             final = new_model(args.quick).fit(tv[feats], tv[ycol])
         joblib.dump({"model": final, "features": feats, "threshold": thr, "horizon": h,
                      "normals": {c: n.tolist() for c, n in normals.items()}},
-                    ARTIFACTS / f"hw_h{h}.joblib")
+                    out_dir / f"hw_h{h}.joblib")
 
-    (ARTIFACTS / "metrics.json").write_text(json.dumps(results, indent=2))
-    print(f"\nSaved models to {ARTIFACTS}/hw_h*.joblib and {ARTIFACTS}/metrics.json "
+    (out_dir / "metrics.json").write_text(json.dumps(results, indent=2))
+    print(f"\nSaved models to {out_dir}/hw_h*.joblib and {out_dir}/metrics.json "
           f"({time.time() - t0:.0f}s)")
 
 
@@ -173,5 +176,6 @@ if __name__ == "__main__":
     ap.add_argument("--quick", action="store_true", help="tiny/fast smoke test")
     ap.add_argument("--max-cities", type=int, default=None)
     ap.add_argument("--importance", action="store_true", help="compute feature importance")
+    ap.add_argument("--out", default="artifacts", help="output folder (default: artifacts)")
     ap.add_argument("--final", action="store_true", help="refit saved model on train+val")
     run(ap.parse_args())
