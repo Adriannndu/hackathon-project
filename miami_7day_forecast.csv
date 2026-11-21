@@ -1,0 +1,15 @@
+period,start_time,temperature,temperature_unit,precipitation_probability,wind_speed,humidity,forecast
+Today,2026-11-21T07:00:00-05:00,82,F,43,3 to 13 mph,,Chance Showers And Thunderstorms
+Tonight,2026-11-21T18:00:00-05:00,75,F,10,9 mph,,Partly Cloudy
+Sunday,2026-11-22T06:00:00-05:00,84,F,25,6 to 9 mph,,Mostly Sunny then Chance Rain Showers
+Sunday Night,2026-11-22T18:00:00-05:00,72,F,11,7 mph,,Partly Cloudy
+Monday,2026-11-23T06:00:00-05:00,81,F,4,7 mph,,Partly Sunny
+Monday Night,2026-11-23T18:00:00-05:00,73,F,25,7 mph,,Mostly Cloudy then Chance Rain Showers
+Tuesday,2026-11-24T06:00:00-05:00,80,F,40,8 mph,,Chance Rain Showers
+Tuesday Night,2026-11-24T18:00:00-05:00,72,F,57,7 mph,,Showers And Thunderstorms Likely
+Wednesday,2026-11-25T06:00:00-05:00,79,F,57,8 mph,,Showers And Thunderstorms Likely
+Wednesday Night,2026-11-25T18:00:00-05:00,69,F,43,8 mph,,Chance Showers And Thunderstorms then Slight Chance Showers And Thunderstorms
+Thanksgiving Day,2026-11-26T06:00:00-05:00,79,F,7,9 mph,,Mostly Sunny
+Thursday Night,2026-11-26T18:00:00-05:00,69,F,10,9 mph,,Mostly Cloudy
+Friday,2026-11-27T06:00:00-05:00,78,F,19,9 mph,,Partly Sunny then Slight Chance Rain Showers
+Friday Night,2026-11-27T18:00:00-05:00,70,F,26,7 to 10 mph,,Chance Rain Showers
