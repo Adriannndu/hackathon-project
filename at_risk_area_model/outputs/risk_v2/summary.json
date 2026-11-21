@@ -1,0 +1,157 @@
+{
+  "what_this_is": "Relative heat-risk ranking of Delhi wards (not a probability of harm; not validated against heat illness data)",
+  "wards_scored": 289,
+  "group_weights": {
+    "Heat hazard": 0.25,
+    "Exposure": 0.25,
+    "Sensitivity": 0.25,
+    "Adaptive capacity": 0.25
+  },
+  "indicators": {
+    "lst_mean_c": {
+      "label": "Surface temperature (Apr-Jun mean)",
+      "group": "Heat hazard",
+      "more_risk_when": "higher"
+    },
+    "lst_hot45_share": {
+      "label": "Share of clear days above 45 C surface temp",
+      "group": "Heat hazard",
+      "more_risk_when": "higher"
+    },
+    "built_up_share": {
+      "label": "Built-up (paved/roofed) share",
+      "group": "Heat hazard",
+      "more_risk_when": "higher"
+    },
+    "pop_density": {
+      "label": "Population density",
+      "group": "Exposure",
+      "more_risk_when": "higher"
+    },
+    "people_exposed": {
+      "label": "People living in the ward",
+      "group": "Exposure",
+      "more_risk_when": "higher"
+    },
+    "elderly_share": {
+      "label": "Population aged 65+",
+      "group": "Sensitivity",
+      "more_risk_when": "higher"
+    },
+    "under5_share": {
+      "label": "Children under 5",
+      "group": "Sensitivity",
+      "more_risk_when": "higher"
+    },
+    "crowding": {
+      "label": "People per km2 of built-up area",
+      "group": "Sensitivity",
+      "more_risk_when": "higher"
+    },
+    "poor_housing_index": {
+      "label": "Poor housing (temporary/semi-permanent structures, one-room homes)",
+      "group": "Sensitivity",
+      "more_risk_when": "higher"
+    },
+    "hospital_travel_min": {
+      "label": "Est. travel time to nearest hospital",
+      "group": "Adaptive capacity",
+      "more_risk_when": "higher"
+    },
+    "hospitals_per_100k": {
+      "label": "Hospitals per 100k people (low = riskier)",
+      "group": "Adaptive capacity",
+      "more_risk_when": "lower"
+    },
+    "tree_cover_pct": {
+      "label": "Tree cover (low = riskier)",
+      "group": "Adaptive capacity",
+      "more_risk_when": "lower"
+    },
+    "assets_index": {
+      "label": "Household assets: car, computer (low = riskier)",
+      "group": "Adaptive capacity",
+      "more_risk_when": "lower"
+    },
+    "tap_treated_pct": {
+      "label": "Households with treated tap water (low = riskier)",
+      "group": "Adaptive capacity",
+      "more_risk_when": "lower"
+    }
+  },
+  "class_method": "rank-based quintiles across scored wards",
+  "weight_sensitivity": {
+    "mean_rank_correlation": 0.9943,
+    "share_of_wards_changing_class": 0.098
+  },
+  "leave_one_group_out_rank_correlation": {
+    "Heat hazard": 0.877,
+    "Exposure": 0.93,
+    "Sensitivity": 0.964,
+    "Adaptive capacity": 0.932
+  },
+  "census_estimation": {
+    "note": "Census 2011 has no row for ~56 outer wards; assets and treated-tap-water were estimated for them only where validation passed (rank correlation >= 0.5); housing quality was not.",
+    "wards_estimated": 56,
+    "validation": {
+      "assets_index": {
+        "cv_rank_corr": 0.566,
+        "fringe_holdout_rank_corr": 0.471,
+        "used": true,
+        "wards_estimated": 55
+      },
+      "poor_housing_index": {
+        "cv_rank_corr": 0.417,
+        "fringe_holdout_rank_corr": 0.413,
+        "used": false,
+        "wards_estimated": 0
+      },
+      "tap_treated_pct": {
+        "cv_rank_corr": 0.543,
+        "fringe_holdout_rank_corr": 0.584,
+        "used": true,
+        "wards_estimated": 55
+      }
+    }
+  },
+  "check_against_heat_action_plan_and_cse_lists": {
+    "CSE_heat_stressed_100pct": {
+      "wards": 10,
+      "median_percentile": 75.1,
+      "min": 46.4,
+      "max": 93.4
+    },
+    "CSE_high_vulnerability": {
+      "wards": 8,
+      "median_percentile": 61.1,
+      "min": 18.7,
+      "max": 99.3
+    },
+    "CSE_relief_low_heat_stress": {
+      "wards": 11,
+      "median_percentile": 11.4,
+      "min": 3.5,
+      "max": 65.7
+    },
+    "CSE_very_high_vulnerability": {
+      "wards": 7,
+      "median_percentile": 48.4,
+      "min": 26.0,
+      "max": 81.3
+    },
+    "DDMA_HAP_2019_LST_hotspot": {
+      "wards": 8,
+      "median_percentile": 71.5,
+      "min": 32.2,
+      "max": 86.5
+    },
+    "auc_named_high_vs_named_low": 0.939
+  },
+  "limitations": [
+    "Temperature is from mid-morning Landsat passes (Apr-Jun 2019-2025), not the afternoon peak",
+    "Population is a 1 km modelled grid (WorldPop 2020)",
+    "Hospital travel time is a straight-line estimate; OpenStreetMap includes small nursing homes",
+    "Wealth, housing quality and water access come from Census 2011 (15 years old) and exist for ~234 of 289 wards; the rest are scored without them",
+    "The reference check is not independent for heat hazard: those lists also come from Landsat temperature"
+  ]
+}

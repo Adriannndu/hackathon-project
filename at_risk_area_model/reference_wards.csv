@@ -1,0 +1,47 @@
+list_name,expected,ward_name_in_source,matched_ward_id,matched_ward_name,match_type,source
+DDMA_HAP_2019_LST_hotspot,hot,Harkesh Nagar,200,HARKESH NAGAR,exact,"DDMA Delhi Heat Action Plan 2025, s2.8 (Landsat 8 LST, 30 May 2019, wards >42C)"
+DDMA_HAP_2019_LST_hotspot,hot,Khyala,108,KHYALA,exact,"DDMA Delhi Heat Action Plan 2025, s2.8 (Landsat 8 LST, 30 May 2019, wards >42C)"
+DDMA_HAP_2019_LST_hotspot,hot,Wazir Pur,67,WAJIRPUR,fuzzy,"DDMA Delhi Heat Action Plan 2025, s2.8 (Landsat 8 LST, 30 May 2019, wards >42C)"
+DDMA_HAP_2019_LST_hotspot,hot,Bijwasan,141,BIJWASAN,exact,"DDMA Delhi Heat Action Plan 2025, s2.8 (Landsat 8 LST, 30 May 2019, wards >42C)"
+DDMA_HAP_2019_LST_hotspot,hot,Vishwas Nagar,226,VISHWASH NAGAR,fuzzy,"DDMA Delhi Heat Action Plan 2025, s2.8 (Landsat 8 LST, 30 May 2019, wards >42C)"
+DDMA_HAP_2019_LST_hotspot,hot,Hari Nagar A,111,HARI NAGAR,substring,"DDMA Delhi Heat Action Plan 2025, s2.8 (Landsat 8 LST, 30 May 2019, wards >42C)"
+DDMA_HAP_2019_LST_hotspot,hot,Jahangir Puri,16,JAHANGIRPURI-I,"ambiguous (source gives one name, file has 2 wards)","DDMA Delhi Heat Action Plan 2025, s2.8 (Landsat 8 LST, 30 May 2019, wards >42C)"
+DDMA_HAP_2019_LST_hotspot,hot,Jahangir Puri,20,JAHANGIR PURI -II,"ambiguous (source gives one name, file has 2 wards)","DDMA Delhi Heat Action Plan 2025, s2.8 (Landsat 8 LST, 30 May 2019, wards >42C)"
+DDMA_HAP_2019_LST_hotspot,hot,Delhi Gate,,,NOT FOUND,"DDMA Delhi Heat Action Plan 2025, s2.8 (Landsat 8 LST, 30 May 2019, wards >42C)"
+DDMA_HAP_2019_LST_hotspot,hot,Shastri Park,,,NOT FOUND,"DDMA Delhi Heat Action Plan 2025, s2.8 (Landsat 8 LST, 30 May 2019, wards >42C)"
+CSE_heat_stressed_100pct,hot,Bazar Sitaram,83,BAZAR SITARAM,exact,CSE 'No time to cool' (State of India's Environment 2026): 100% of area LST>45C in >6 of 10 yrs (2015-24)
+CSE_heat_stressed_100pct,hot,Ballimaran,86,BALLIMARAN,exact,CSE 'No time to cool' (State of India's Environment 2026): 100% of area LST>45C in >6 of 10 yrs (2015-24)
+CSE_heat_stressed_100pct,hot,Kucha Pandit,82,KUCHA PANDIT,exact,CSE 'No time to cool' (State of India's Environment 2026): 100% of area LST>45C in >6 of 10 yrs (2015-24)
+CSE_heat_stressed_100pct,hot,Turkman Gate,84,TURKMAN GATE,exact,CSE 'No time to cool' (State of India's Environment 2026): 100% of area LST>45C in >6 of 10 yrs (2015-24)
+CSE_heat_stressed_100pct,hot,Milap Nagar,119,MILAP NAGAR,exact,CSE 'No time to cool' (State of India's Environment 2026): 100% of area LST>45C in >6 of 10 yrs (2015-24)
+CSE_heat_stressed_100pct,hot,Madhu Vihar,148,MADHU VIHAR,exact,CSE 'No time to cool' (State of India's Environment 2026): 100% of area LST>45C in >6 of 10 yrs (2015-24)
+CSE_heat_stressed_100pct,hot,Babar Pur,260,BABAR PUR,exact,CSE 'No time to cool' (State of India's Environment 2026): 100% of area LST>45C in >6 of 10 yrs (2015-24)
+CSE_heat_stressed_100pct,hot,Karawal Nagar East,266,KARAWAL NAGAR EAST,exact,CSE 'No time to cool' (State of India's Environment 2026): 100% of area LST>45C in >6 of 10 yrs (2015-24)
+CSE_heat_stressed_100pct,hot,Tukhmir Pur,270,TUKHMIR PUR,exact,CSE 'No time to cool' (State of India's Environment 2026): 100% of area LST>45C in >6 of 10 yrs (2015-24)
+CSE_heat_stressed_100pct,hot,Nehru Vihar,267,NEHRU VIHAR,exact,CSE 'No time to cool' (State of India's Environment 2026): 100% of area LST>45C in >6 of 10 yrs (2015-24)
+CSE_very_high_vulnerability,high_risk,Matiala,136,MATIALA,exact,CSE 'No time to cool': cumulative vulnerability category Very High
+CSE_very_high_vulnerability,high_risk,Kakraula,135,KAKRAULA,exact,CSE 'No time to cool': cumulative vulnerability category Very High
+CSE_very_high_vulnerability,high_risk,Hastsal,122,HASTSAL,exact,CSE 'No time to cool': cumulative vulnerability category Very High
+CSE_very_high_vulnerability,high_risk,Narela,1,NARELA,exact,CSE 'No time to cool': cumulative vulnerability category Very High
+CSE_very_high_vulnerability,high_risk,Bawana,28,BAWANA,exact,CSE 'No time to cool': cumulative vulnerability category Very High
+CSE_very_high_vulnerability,high_risk,Mukundpur,6,MUKUND PUR,exact,CSE 'No time to cool': cumulative vulnerability category Very High
+CSE_very_high_vulnerability,high_risk,Chandni Chowk,80,CHANDNI CHOWK,exact,CSE 'No time to cool': cumulative vulnerability category Very High
+CSE_high_vulnerability,high_risk,Bhalaswa,5,BHALASWA JAHAGIR PUR,substring,"CSE 'No time to cool': cumulative vulnerability category High (partial list, 'among others')"
+CSE_high_vulnerability,high_risk,Burari,7,BURARI,exact,"CSE 'No time to cool': cumulative vulnerability category High (partial list, 'among others')"
+CSE_high_vulnerability,high_risk,Shiv Vihar,265,SHIV VIHAR,exact,"CSE 'No time to cool': cumulative vulnerability category High (partial list, 'among others')"
+CSE_high_vulnerability,high_risk,Badarpur,203,BADAR PUR,exact,"CSE 'No time to cool': cumulative vulnerability category High (partial list, 'among others')"
+CSE_high_vulnerability,high_risk,Nangloi,43,NANGLOI EAST,"ambiguous (source gives one name, file has 2 wards)","CSE 'No time to cool': cumulative vulnerability category High (partial list, 'among others')"
+CSE_high_vulnerability,high_risk,Nangloi,31,NANGLOI JAT WEST,"ambiguous (source gives one name, file has 2 wards)","CSE 'No time to cool': cumulative vulnerability category High (partial list, 'among others')"
+CSE_high_vulnerability,high_risk,Najafgarh,138,NAJAFGARH,exact,"CSE 'No time to cool': cumulative vulnerability category High (partial list, 'among others')"
+CSE_high_vulnerability,high_risk,Chhatarpur,174,CHHATARPUR,exact,"CSE 'No time to cool': cumulative vulnerability category High (partial list, 'among others')"
+CSE_relief_low_heat_stress,low,Geeta Colony,230,GEETA COLONY,exact,CSE 'No time to cool': <25% of area heat-stressed (partial list)
+CSE_relief_low_heat_stress,low,GTB Nagar,12,G.T.B. NAGAR,exact,CSE 'No time to cool': <25% of area heat-stressed (partial list)
+CSE_relief_low_heat_stress,low,Malviya Nagar,161,MALVIYA NAGAR,exact,CSE 'No time to cool': <25% of area heat-stressed (partial list)
+CSE_relief_low_heat_stress,low,Shahpur Jat,191,SHAPUR JAT,fuzzy,CSE 'No time to cool': <25% of area heat-stressed (partial list)
+CSE_relief_low_heat_stress,low,Chittaranjan Park,190,CHITRANJAN PARK,fuzzy,CSE 'No time to cool': <25% of area heat-stressed (partial list)
+CSE_relief_low_heat_stress,low,Preet Vihar,228,PREET VIHAR,exact,CSE 'No time to cool': <25% of area heat-stressed (partial list)
+CSE_relief_low_heat_stress,low,Mehrauli,170,MEHRAULI,exact,CSE 'No time to cool': <25% of area heat-stressed (partial list)
+CSE_relief_low_heat_stress,low,Pushp Vihar,184,PUSHP VIHAR,exact,CSE 'No time to cool': <25% of area heat-stressed (partial list)
+CSE_relief_low_heat_stress,low,Majnu ka Tila,78,MAJNU KA TILA,exact,CSE 'No time to cool': <25% of area heat-stressed (partial list)
+CSE_relief_low_heat_stress,low,Munirka,166,MUNIRKA,exact,CSE 'No time to cool': <25% of area heat-stressed (partial list)
+CSE_relief_low_heat_stress,low,Lado Sarai,169,LADOSARAI,exact,CSE 'No time to cool': <25% of area heat-stressed (partial list)
