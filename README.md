@@ -59,13 +59,7 @@ We took data about population density, water access, healthcare access, and shad
 
 1. 	Collecting the data
 For every ward, we collected 14 indicators from free public datasets, categorized into 4 groups.
-| Component | What It Measures | Key Indicators | Data Sources |
-| :--- | :--- | :--- | :--- |
-| **Heat Hazard** | How hot a ward gets | • Ground surface temperature<br>• Clear days with surface temperature above 45°C<br>• Share of the ward that is paved or roofed | Landsat 8 & 9 satellites (2019–2025), ESA WorldCover |
-| **Exposure** | How many people the heat reaches | • Population density<br>• Number of residents | WorldPop 2020 |
-| **Sensitivity** | How many people are especially vulnerable | • Share of people under age 5<br>• Share of people above age 65<br>• Crowding<br>• Temporary/one-room housing | WorldPop 2020, 2011 Census |
-| **Ability to Cope** | How well people can protect themselves | • Travel time to the nearest hospital<br>• Hospitals per 100,000 people<br>• Tree cover<br>• Household assets<br>• Number of homes with treated tap water | OpenStreetMap, ESA WorldCover, 2011 Census |
-
+These are heat hazard, exposure, sensitivity, and ability to cope. Heat hazard measures how hot a ward gets, its indicators are ground surface temperature, number of clear days with surface temperature above 45C, and share of the ward that is paved or roofed. The data for this group was retrieved from the Landsat 8 and 9 satellites (2019 - 2025) and ESA WorldCover. Next is exposure, which measures how many people the heat reaches. Indicators for this group are population density and number of residents, and data was collected from WordPop 2020. Sensitivity measures how many people are especially vulnerable, and it includes the share of people under the age of 5, share of people above the age of 65, crowding, and temporary/one-room housing. The sensitivity data was collected from WorldPop 2020 and the 2011 Census. Lastly is the ability to cope, which measures how well people can protect themselves. Key indicators are travel time to the nearest hospital, hospitals per 100,000 people, tree cover, household assets, and number of homes with treated tap water. Data was collected from OpenStreetMap, ESA WorldCover, and the 2011 Census.
 
 2.	Scoring each ward.
 Each of the 14 indicators is turned into a rank among the wards, with 0 meaning least at risk and 100 meaning most at risk. The indicators in each group are averaged into a group score. The four groups each make up an equal amount toward the final 0-100 vulnerability score for each ward. These scores then place all the wards into 5 equal sized classes, low, moderate, high, very high, and extreme.
