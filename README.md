@@ -20,13 +20,13 @@ HeatLens is an application that identifies which regions are most vulnerable dur
 
 ## Preview
 Screenshot of the application on a day with no heat waves. The UI is on the left hand side, and you can look up wards and view information that determines risk level. 
-![The application when there is not a heat wave.](map_normal.png)
+![The application when there is not a heat wave.](images/map_normal.png)
 
 Screenshot of the application during a heat wave. For this example, data from the May 2024 Delhi heat wave is used. 
-![The application when there is a heat wave.](map_during_heat_wave.png)
+![The application when there is a heat wave.](images/map_during_heat_wave.png)
 
 Screenshot of a specific region (Raisina Hill) being selected. On the left hand side information that determines the risk level is displayed
-![A specific region or ward being selected. Information about the ward is displayed on the left](specific_ward.png)
+![A specific region or ward being selected. Information about the ward is displayed on the left](images/specific_ward.png)
 
 The interace used to look up wards
 ![Looking up a certain ward](lookup.png)
