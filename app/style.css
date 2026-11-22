@@ -89,7 +89,13 @@ select, input[type="text"], input:not([type]) {
 }
 select { padding: 7px 9px; }
 select:focus, input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(164, 72, 44, 0.18); }
-#search { width: 100%; margin-top: 10px; }
+.ward-field { margin-top: 10px; z-index: 30; }
+/* Each block of the panel slides in with its own animation, which puts it on its own layer, so a later
+   block would cover the suggestion lists. Lift the two search boxes above what follows them
+   (the address box above the ward box, whose list it can overlap). */
+#address-box { position: relative; z-index: 31; }
+#search { width: 100%; }
+#ward-note { margin: 6px 0 0; }
 .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 4px; }
 
 /* Buttons (panel only, so the map's own controls keep their look) */
