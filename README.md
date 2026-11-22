@@ -29,7 +29,7 @@ Screenshot of a specific region (Raisina Hill) being selected. On the left hand 
 ![A specific region or ward being selected. Information about the ward is displayed on the left](images/specific_ward.png)
 
 The interace used to look up wards
-![Looking up a certain ward](lookup.png)
+![Looking up a certain ward](images/lookup.png)
 
 ### Who can use it 
 Planners and officials can use HeatLens to decide where to send water, cooling, and medical aid first. Community groups can use it to find the areas that need the most support. 
