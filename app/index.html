@@ -42,8 +42,13 @@
       </form>
       <p id="address-note" class="sm hidden" role="status"></p>
       <button id="locate-btn" class="secondary">Use my current location</button>
-      <input id="search" list="names" placeholder="Or search for a ward by name…" autocomplete="off">
-      <datalist id="names"></datalist>
+      <!-- Ward search: matches as you type (name, ward number or assembly constituency), all in the browser -->
+      <div class="addr-field ward-field">
+        <input id="search" type="text" placeholder="Or search for a ward by name or number…" autocomplete="off" spellcheck="false"
+               role="combobox" aria-label="Search for a ward" aria-autocomplete="list" aria-controls="ward-list" aria-expanded="false">
+        <div id="ward-list" class="suggest hidden" role="listbox" aria-label="Matching wards"></div>
+      </div>
+      <p id="ward-note" class="sm hidden" role="status"></p>
       <div id="my-status" class="sm hidden"></div>
 
       <h2>The map</h2>

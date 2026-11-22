@@ -626,20 +626,103 @@ $("#method").innerHTML = `<p>Each of ${DATA.n_scored} wards is ranked against th
 
 
 // ---------- 8. CONTROLS ----------------------------------------------
-places.forEach((p) => {
-  const o = document.createElement("option");
-  o.value = p.label;
-  $("#names").appendChild(o);
-});
 $("#layer").addEventListener("change", paint);
 $("#day").addEventListener("change", paint);
 $("#named").addEventListener("change", showNamed);
 
-$("#search").addEventListener("change", (e) => {
-  const q = e.target.value.trim().toLowerCase();
-  const p = places.find((x) => x.label.toLowerCase() === q) || places.find((x) => x.name.toLowerCase() === q);
-  if (p) { e.target.value = ""; openWard(p); }
+// ---- Ward search: instant suggestions from the 267 wards already in the page (no network).
+//      Matches the ward name anywhere ("rohini" finds Rohini-A to F), the ward number ("12", "ward 12"),
+//      and the assembly constituency.
+const norm = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const wardIndex = places.map((p) => ({ p, name: norm(p.name), ac: norm(p.ac), num: /^[0-9]+$/.test(p.id) ? p.id : null }));
+const wardInput = $("#search"), wardList = $("#ward-list"), wardNote = $("#ward-note");
+let wardHits = [], wardActive = -1;
+
+function findWards(q) {
+  const t = norm(q);
+  if (!t) return [];
+  const num = (t.match(/^(?:ward |w ?)?([0-9]+)$/) || [])[1]; // "12", "ward 12", "w12"
+  const scored = [];
+  for (const w of wardIndex) {
+    let rank = null;
+    if (num && w.num === num) rank = 0;
+    else if (w.name === t) rank = 1;
+    else if (w.name.startsWith(t)) rank = 2;
+    else if ((" " + w.name).includes(" " + t)) rank = 3; // a word in the name starts with it
+    else if (w.name.includes(t)) rank = 4;
+    else if (w.ac && (w.ac.startsWith(t) || (" " + w.ac).includes(" " + t))) rank = 5;
+    if (rank !== null) scored.push({ w, rank });
+  }
+  scored.sort((a, b) => a.rank - b.rank || a.w.name.localeCompare(b.w.name, "en", { numeric: true }));
+  return scored.slice(0, 8).map((s) => s.w.p);
+}
+
+function closeWardList() {
+  wardList.classList.add("hidden");
+  wardInput.setAttribute("aria-expanded", "false");
+  wardInput.removeAttribute("aria-activedescendant");
+  wardActive = -1;
+}
+function wardNoteText(text) {
+  wardNote.textContent = text;
+  wardNote.classList.toggle("hidden", !text);
+}
+function showWardList(hits) {
+  wardHits = hits;
+  wardActive = -1;
+  if (!hits.length) return closeWardList();
+  wardList.innerHTML = hits.map((p, i) => {
+    const sub = [p.cls ? p.cls + " vulnerability" : "not scored", p.ac ? "Assembly constituency: " + p.ac : p.type].filter(Boolean).join(" · ");
+    return `<div class="opt" role="option" id="ward-opt-${i}" data-i="${i}" aria-selected="false"><b>${esc(p.label)}</b><span>${esc(sub)}</span></div>`;
+  }).join("");
+  wardList.classList.remove("hidden");
+  wardInput.setAttribute("aria-expanded", "true");
+}
+function highlightWard(i) {
+  wardActive = i;
+  wardList.querySelectorAll(".opt").forEach((el, k) => {
+    el.classList.toggle("active", k === i);
+    el.setAttribute("aria-selected", String(k === i));
+  });
+  if (i >= 0) {
+    wardInput.setAttribute("aria-activedescendant", "ward-opt-" + i);
+    wardList.querySelector("#ward-opt-" + i).scrollIntoView({ block: "nearest" });
+  }
+}
+function pickWard(p) {
+  closeWardList();
+  wardNoteText("");
+  wardInput.value = "";
+  wardInput.blur();
+  openWard(p);
+}
+
+wardInput.addEventListener("input", () => {
+  wardNoteText("");
+  const q = wardInput.value;
+  const hits = findWards(q);
+  showWardList(hits);
+  if (norm(q).length >= 3 && !hits.length) wardNoteText(`No ward matches "${q.trim()}". For a street, area or landmark, use the address box above.`);
 });
+wardInput.addEventListener("focus", () => { if (wardInput.value.trim()) showWardList(findWards(wardInput.value)); });
+wardInput.addEventListener("keydown", (e) => {
+  const open = !wardList.classList.contains("hidden") && wardHits.length;
+  if (e.key === "ArrowDown" && open) { e.preventDefault(); highlightWard((wardActive + 1) % wardHits.length); }
+  else if (e.key === "ArrowUp" && open) { e.preventDefault(); highlightWard((wardActive - 1 + wardHits.length) % wardHits.length); }
+  else if (e.key === "Escape") closeWardList();
+  else if (e.key === "Enter") {
+    e.preventDefault();
+    const hits = open ? wardHits : findWards(wardInput.value);
+    if (hits.length) pickWard(hits[wardActive >= 0 ? wardActive : 0]); // Enter without choosing takes the best match
+    else if (wardInput.value.trim()) wardNoteText(`No ward matches "${wardInput.value.trim()}". For a street, area or landmark, use the address box above.`);
+  }
+});
+wardList.addEventListener("mousedown", (e) => {
+  const opt = e.target.closest(".opt");
+  e.preventDefault(); // keep focus in the box until the choice is made
+  if (opt) pickWard(wardHits[+opt.dataset.i]);
+});
+wardInput.addEventListener("blur", () => setTimeout(closeWardList, 120));
 
 function showStatus(message) {
   const box = $("#my-status");
