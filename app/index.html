@@ -11,27 +11,61 @@
        Falls back to system fonts offline. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;500&family=Young+Serif&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;500&family=Young+Serif&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <!-- The map fills the window; the panel floats over its left side and can slide away. -->
   <div id="map"></div>
 
+  <!-- Headline numbers over the map -->
+  <div id="headline" class="headline-band" aria-live="polite"></div>
+
+  <!-- What the sharing arrows on the map carry (shown while they're on the map) -->
+  <div id="flow-key" class="flow-key hidden" aria-live="polite"></div>
+
+  <!-- The 60-second story: captions over the map -->
+  <div id="story" class="story hidden" aria-live="polite">
+    <div class="story-text"></div>
+    <div class="story-bar"><i></i></div>
+    <button id="story-stop" type="button" aria-label="Stop the story">Stop</button>
+  </div>
+
+  <!-- Ready-to-send heat alert -->
+  <dialog id="alert-dialog" class="alert-dialog" aria-labelledby="alert-title">
+    <form method="dialog">
+      <h2 id="alert-title">Heat alert</h2>
+      <p class="sm">A draft for ward officers to check, finish and send.</p>
+      <p id="alert-basis" class="sm"></p>
+      <div id="alert-lang" class="seg" role="group" aria-label="Language">
+        <button type="button" data-lang="en" class="active">English</button>
+        <button type="button" data-lang="hi" lang="hi">हिन्दी</button>
+      </div>
+      <textarea id="alert-text" rows="8" aria-label="Alert message"></textarea>
+      <p id="alert-count" class="sm"></p>
+      <div class="alert-actions">
+        <button type="button" id="alert-copy" class="primary">Copy</button>
+        <a id="alert-wa" class="wa" target="_blank" rel="noopener">WhatsApp</a>
+        <a id="alert-sms" class="plain">SMS</a>
+        <button value="close" class="plain">Close</button>
+      </div>
+      <p class="sm note">Fill in the nearest cool shelter before sending. The Hindi text should be checked by a native speaker.</p>
+    </form>
+  </dialog>
+
   <aside id="panel">
     <header class="masthead">
       <h1>HeatLens</h1>
-      <p class="sub">Is a heat wave coming to your part of Delhi, and how exposed is your ward when one hits? A 7-day forecast, plus a score for each ward on heat hazard, exposure, sensitivity and ability to cope.</p>
+      <p class="sub">Where will a heat wave hit Delhi hardest, and what should go where? The live 7-day forecast, the May 2024 heat wave replayed, and a plan for every ward.</p>
+      <button id="story-btn" type="button" class="story-btn"><span aria-hidden="true">▶</span> Play the 60-second story</button>
     </header>
 
-    <div class="banner"><b>Read this first.</b> The ward score is a <b>relative</b> ranking of Delhi's wards, not a probability of anyone being harmed, and it has not been checked against heat-illness data. The heat-wave outlook applies the IMD rule to a weather-model forecast, not to official IMD warnings. Follow IMD and Delhi government alerts, and treat this as a way to ask "where should we look first?"</div>
-
-    <label class="t switch"><input type="checkbox" id="demo"> Demo: replay the May 2024 Delhi heat wave as the forecast</label>
+    <div class="banner"><b>Read this first.</b> Ward scores rank Delhi's wards against each other: they aren't a probability of harm and haven't been checked against heat-illness data. The outlook applies the IMD rule to a weather-model forecast, so follow official IMD and Delhi government alerts.</div>
 
     <!-- ============ OVERVIEW: shown when no ward is open ============ -->
     <div id="overview-view" class="page">
-      <h2>Find your ward</h2>
-      <!-- Address search: suggestions appear as you type; pick one or press Enter -->
+      <!-- Find a ward: address search (suggestions appear as you type), your location, or a ward's name -->
+      <div class="finder">
       <form id="address-box" autocomplete="off" role="search">
         <div class="addr-field">
           <input id="address-input" type="text" placeholder="Enter your address or area" role="combobox"
@@ -42,7 +76,6 @@
       </form>
       <p id="address-note" class="sm hidden" role="status"></p>
       <button id="locate-btn" class="secondary">Use my current location</button>
-      <!-- Ward search: matches as you type (name, ward number or assembly constituency), all in the browser -->
       <div class="addr-field ward-field">
         <input id="search" type="text" placeholder="Or search for a ward by name or number…" autocomplete="off" spellcheck="false"
                role="combobox" aria-label="Search for a ward" aria-autocomplete="list" aria-controls="ward-list" aria-expanded="false">
@@ -50,29 +83,63 @@
       </div>
       <p id="ward-note" class="sm hidden" role="status"></p>
       <div id="my-status" class="sm hidden"></div>
+      </div>
+
+      <h2>Heat danger now</h2>
+      <div id="now-city" class="sm">Getting this week's forecast…</div>
+
+      <h2>If May 2024 happened again</h2>
+      <div id="scenario-city"></div>
+
+      <h2>What to send where</h2>
+      <div id="plan"><p class="sm">Working out the plan…</p></div>
 
       <h2>The map</h2>
-      <div class="controls">
-        <label class="t">Colour by <select id="layer"></select></label>
-        <label class="t" id="daywrap">for <select id="day"><option value="all">the next 7 days (worst day)</option></select></label>
+      <div id="mode" class="segmented" role="tablist" aria-label="What the map shows">
+        <button type="button" data-mode="week" class="active" role="tab" aria-selected="true">Heat by day</button>
+        <button type="button" data-mode="vuln" role="tab" aria-selected="false">Who is vulnerable</button>
       </div>
-      <label class="t"><input type="checkbox" id="named"> Outline wards named in the Heat Action Plan / CSE</label>
+      <div id="vuln-controls" class="hidden">
+        <div class="controls">
+          <label class="t">Colour by <select id="layer"></select></label>
+        </div>
+        <label class="t"><input type="checkbox" id="named"> Outline wards named in the Heat Action Plan / CSE</label>
+      </div>
+      <div id="week-controls">
+        <div id="week-src" class="segmented small" role="group" aria-label="Which heat to show">
+          <button type="button" data-src="live" class="active" aria-pressed="true">This week's forecast</button>
+          <button type="button" data-src="demo" aria-pressed="false">May 2024 replay</button>
+        </div>
+        <input type="checkbox" id="demo" hidden>
+        <div class="day-row">
+          <button type="button" id="day-play" class="play" aria-label="Play through the week">▶</button>
+          <input type="range" id="day" min="0" max="6" value="0" step="1" aria-label="Day">
+        </div>
+        <div id="day-ticks" class="ticks"></div>
+        <p id="week-summary" class="sm"></p>
+        <label class="t"><input type="checkbox" id="share-on"> Show neighbours sharing resources</label>
+        <div id="share-box" class="hidden">
+          <label class="t">Resource <select id="share-res"></select></label>
+          <div id="share-summary"></div>
+        </div>
+      </div>
       <div class="legend" id="legend"></div>
-      <p id="map-status" class="sm note" role="status"></p>
-      <p class="sm note">Dashed outline: Census-based factors were estimated for this ward (the Census has no row for it). Grey: not scored.</p>
+      <p class="sm note hidden" id="map-note">Dashed outline: Census-based factors were estimated for this ward (the Census has no row for it). Grey: not scored.</p>
 
-      <h2>Top 25 wards</h2>
-      <table id="top"></table>
-
-      <h2>How it works, and its limits</h2>
-      <div id="method"></div>
+      <details class="more"><summary>The 25 most vulnerable wards</summary><table id="top"></table></details>
+      <details class="more"><summary>How it works, and its limits</summary><div id="method"></div></details>
     </div>
 
-    <!-- ============ WARD PAGE: opens when a ward is clicked ============ -->
+    <!-- ============ WARD PAGE: opens when a ward is clicked ============
+         Top to bottom: who it is, the heat now, the heat if May 2024 came back, what to send, then details -->
     <div id="ward-page" class="page hidden">
       <button id="ward-back" class="back">← All wards</button>
-      <section class="card" id="you"><h2>Your heat risk</h2><div id="youbody" class="sm">Getting the forecast…</div></section>
-      <section class="card" id="detail"></section>
+      <section id="ward-head"></section>
+      <section class="card" id="you"><h2>Now · live forecast</h2><div id="youbody" class="sm">Getting the forecast…</div></section>
+      <section class="card" id="scenario"><h2>If May 2024 happened again</h2><div id="scenario-body"></div></section>
+      <section class="card" id="needs"><h2>What to send</h2><div id="needs-body"></div></section>
+      <details class="card more" id="why"><summary>Why these resources</summary><div id="why-body"></div></details>
+      <details class="card more" id="detail-box"><summary>The vulnerability score in detail</summary><div id="detail"></div></details>
     </div>
   </aside>
 
