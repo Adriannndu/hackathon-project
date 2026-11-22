@@ -12,7 +12,8 @@ NASA_COLS = ["nasa_temp_max_c", "nasa_temp_min_c", "humidity_mean_pct", "wet_bul
 def load_table(max_cities=None):
     raw_files = sorted((DATA / "raw").glob("*.csv"))
     if not raw_files:
-        raise SystemExit("No files in data/raw/. Run get_expanded_data.py first.")
+        raise SystemExit("No files in data/raw/. The raw weather data was removed from the repo; "
+                         "restore it with: git show d1e197a:data_bundle.tgz > data_bundle.tgz && tar xzf data_bundle.tgz")
     excluded = {c.lower().replace(" ", "_") for c in EXCLUDE_CITIES}
     raw_files = [f for f in raw_files if f.stem not in excluded]
     if max_cities and max_cities < len(raw_files):  # evenly spaced subset (quick tests)
