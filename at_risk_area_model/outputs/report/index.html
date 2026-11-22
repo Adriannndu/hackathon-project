@@ -42,11 +42,13 @@ svg circle.me{fill:#0a4fa8;stroke:#fff;stroke-width:2;pointer-events:none}
 <main>
 <section class="card"><div class="controls">
 <label class="t">Colour by <select id="layer"></select></label>
+<label class="t" id="daywrap">for <select id="day"><option value="all">the next 7 days (worst day)</option></select></label>
 <input id="search" list="names" placeholder="Search ward…" autocomplete="off"><datalist id="names"></datalist>
 <label class="t"><input type="checkbox" id="named"> Outline wards named in the Heat Action Plan / CSE</label>
 </div>
 <div id="mapwrap"><svg id="map" role="img" aria-label="Map of Delhi wards coloured by heat risk"></svg><div id="tip"></div></div>
 <div class="legend" id="legend"></div>
+<div class="sm" id="mapstatus" style="margin-top:4px"></div>
 <div class="sm" style="margin-top:6px">Dashed outline = Census-based factors were estimated for this ward (the Census has no row for it). Grey = not scored.</div>
 </section>
 <section>
@@ -55,7 +57,7 @@ svg circle.me{fill:#0a4fa8;stroke:#fff;stroke-width:2;pointer-events:none}
 <label class="t"><input type="checkbox" id="demo"> Demo: replay the May 2024 Delhi heat wave as the forecast</label>
 <div id="youbody" class="sm" style="margin-top:8px">Pick a location to see whether a heat wave is coming in the next 7 days, and what that means for that ward.</div></div>
 <div class="card" id="detail" style="margin-top:14px"><h2>Click a ward</h2><div class="sm">Select a ward on the map or in the table to see why it scored the way it did.</div></div>
-<div class="card" style="margin-top:14px"><h2>Top 25 wards</h2><table id="top"></table></div>
+<div class="card" style="margin-top:14px"><h2>25 most vulnerable wards</h2><table id="top"></table></div>
 <div class="card" style="margin-top:14px"><h2>How it works, and its limits</h2><div id="method"></div></div>
 </section></main>
 <script>
@@ -63,15 +65,16 @@ const DATA = {"W":931.3,"H":1000.0,"wards":[{"id":"CANT_1","name":"Delhi Cantt C
 const PAL=["#ffffcc","#fed976","#fd8d3c","#e31a1c","#800026"],CLS=["Low","Moderate","High","Very High","Extreme"];
 const $=s=>document.querySelector(s),svg=$("#map"),NS="http://www.w3.org/2000/svg";
 svg.setAttribute("viewBox",`0 0 ${DATA.W} ${DATA.H}`);
-const layers=[["cls","Risk class (overall)"],["score","Overall risk score"],...DATA.groups.map(g=>["g:"+g,g+" score"])];
+const layers=[["now","Heat risk now (forecast)"],["cls","Vulnerability class (if a heat wave hits)"],["score","Vulnerability score"],...DATA.groups.map(g=>["g:"+g,g+" score"])];
 layers.forEach(([v,t])=>{const o=document.createElement("option");o.value=v;o.textContent=t;$("#layer").appendChild(o)});
 const scored=DATA.wards.filter(w=>w.score!==undefined);
 const ramp=v=>PAL[Math.min(4,Math.max(0,Math.floor(v/20)))]; // 0-100 -> 5 bands (used for the small bars)
 const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
 function interp(t){t=Math.min(1,Math.max(0,t));const x=t*4,i=Math.min(3,Math.floor(x)),f=x-i,a=hex(PAL[i]),b=hex(PAL[i+1]);return"rgb("+a.map((v,k)=>Math.round(v+(b[k]-v)*f)).join(",")+")"}
 const val=(w,L)=>L==="score"?w.score:w.groups[L.slice(2)];
-const RANGE={};layers.slice(1).forEach(([L])=>{const v=scored.map(w=>val(w,L)).sort((a,b)=>a-b);RANGE[L]=[v[Math.floor(v.length*.02)],v[Math.floor(v.length*.98)]]});
+const RANGE={};layers.slice(2).forEach(([L])=>{const v=scored.map(w=>val(w,L)).sort((a,b)=>a-b);RANGE[L]=[v[Math.floor(v.length*.02)],v[Math.floor(v.length*.98)]]});
 function colour(w){const L=$("#layer").value;if(w.score===undefined)return"#cfcfc8";
+ if(L==="now"){const r=nowRisk(w);return r===null?"#e9e7e0":RISKCOL[r]}
  if(L==="cls")return PAL[CLS.indexOf(w.cls)];const[lo,hi]=RANGE[L];return interp((val(w,L)-lo)/(hi-lo))}
 const paths={};let selected=null;
 DATA.wards.forEach(w=>{const p=document.createElementNS(NS,"path");p.setAttribute("d",w.d);
@@ -80,11 +83,13 @@ DATA.wards.forEach(w=>{const p=document.createElementNS(NS,"path");p.setAttribut
  svg.appendChild(p);paths[w.id]=p;
  const o=document.createElement("option");o.value=w.name;$("#names").appendChild(o)});
 function tip(e,w){const t=$("#tip"),r=$("#mapwrap").getBoundingClientRect();t.style.display="block";
- t.textContent=w.score===undefined?w.name+" (not scored)":`${w.name}: ${w.cls} (${w.score.toFixed(0)}), rank ${w.rank}`;
+ const nr=$("#layer").value==="now"?nowRisk(w):null;
+ t.textContent=w.score===undefined?w.name+" (not scored)":nr!==null?`${w.name}: ${RISK[nr]} · ${w.cls} vulnerability`:`${w.name}: ${w.cls} (${w.score.toFixed(0)}), rank ${w.rank}`;
  t.style.left=Math.min(e.clientX-r.left+12,r.width-t.offsetWidth-4)+"px";t.style.top=(e.clientY-r.top+14)+"px"}
 function paint(){DATA.wards.forEach(w=>{const p=paths[w.id];p.setAttribute("fill",colour(w));
  p.classList.toggle("named",$("#named").checked&&w.named.length>0);p.classList.toggle("sel",w.id===selected)});
- const L=$("#layer").value;$("#legend").innerHTML=(L==="cls"?CLS.map((c,i)=>`<span><i style="background:${PAL[i]}"></i>${c}</span>`)
+ const L=$("#layer").value;$("#daywrap").style.display=L==="now"?"flex":"none";$("#mapstatus").style.display=L==="now"?"block":"none";
+ $("#legend").innerHTML=(L==="now"?RISK.map((c,i)=>`<span><i style="background:${RISKCOL[i]}"></i>${c}</span>`):L==="cls"?CLS.map((c,i)=>`<span><i style="background:${PAL[i]}"></i>${c}</span>`)
   :[`<span>${RANGE[L][0].toFixed(0)}</span><span style="display:inline-block;width:170px;height:12px;border-radius:3px;background:linear-gradient(to right,${PAL.join(",")})"></span><span>${RANGE[L][1].toFixed(0)} (low to high risk)</span>`]).join("")+`<span><i style="background:#cfcfc8"></i>not scored</span>`;
  const sel=paths[selected];if(sel)svg.appendChild(sel)}
 const fmt=(v,f)=>v==null?"—":f==="int"?Math.round(v).toLocaleString():f==="pct100"?(v*100).toFixed(1)+"%":f==="0"?v.toFixed(0):f==="2"?v.toFixed(2):v.toFixed(1);
@@ -112,7 +117,6 @@ $("#method").innerHTML=`<p>Each of ${DATA.n_scored} wards is ranked against the 
 <li>Wards named as high-risk by the Delhi Heat Action Plan or CSE rank above wards CSE calls low-heat-stress in ${(au*100).toFixed(0)}% of pairs. The heat-hazard part of this check is not independent, because those lists also come from Landsat temperatures.</li></ul>
 <details><summary>Known limitations</summary><ul>${DATA.limits.map(l=>`<li>${l}</li>`).join("")}<li>${DATA.est.note} ${DATA.est.wards_estimated} wards affected.</li><li>Ward boundaries are the pre-2022 municipal wards.</li></ul></details>
 <details><summary>Data sources</summary><ul><li>Surface temperature &amp; vegetation: Landsat 8/9 (USGS), April–June 2019–2025</li><li>Land cover: ESA WorldCover 2021 (CC BY 4.0)</li><li>Population by age: WorldPop 2020 (CC BY 4.0)</li><li>Hospitals: OpenStreetMap contributors (ODbL)</li><li>Housing, assets, water: Census of India 2011, houselisting table HL-14</li><li>Reference lists: Delhi Heat Action Plan 2025 (DDMA) and CSE, "No time to cool" (2026)</li></ul></details>`;
-paint();
 // ---------------- heat outlook: forecast x ward risk ----------------
 const R=DATA.rule,P=DATA.proj,RISK=["No risk","Low risk","Medium risk","High risk"],
  RISKCOL=["#d9ead3","#fed976","#fd8d3c","#b10026"],LEVEL=["normal","hot (40 °C+)","heat wave","severe heat wave"],
@@ -134,15 +138,36 @@ function classify(days){ // IMD rule: hot day = (>=40 C and >=4.5 C above normal
   let j=i;while(j<days.length&&days[j].hot)j++;for(let k=i;k<j;k++){days[k].hw=j-i>=R.run;days[k].streak=k-i+1}i=j}
  days.forEach(d=>{d.severe=d.hw&&((d.anom>=R.anomSev&&d.tmax>=R.thr)||d.tmax>=R.absSev);d.level=d.severe?3:d.hw?2:d.tmax>=R.thr?1:0});
  return days}
-async function forecast(lat,lon){ // 2 past days (so a heat wave already under way is caught) + today + 6 days
- if($("#demo").checked)return{days:classify(DATA.demo.map(d=>({...d}))),today:2,src:"Demo: observed Delhi temperatures, 22–30 May 2024, shown as if 24 May were today."};
+// Open-Meteo: 2 past days (so a heat wave already under way is caught) + today + 6 days
+const OM="https://api.open-meteo.com/v1/forecast?daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max&timezone=Asia%2FKolkata&past_days=2&forecast_days=7";
+const demoFc=()=>({days:classify(DATA.demo.map(d=>({...d}))),today:2,src:"Demo: observed Delhi temperatures, 22–30 May 2024, shown as if 24 May were today."});
+const parseFc=(j,src)=>({days:classify(j.time.map((t,i)=>({date:t,tmax:j.temperature_2m_max[i],tmin:j.temperature_2m_min[i],
+ app:j.apparent_temperature_max[i]})).filter(d=>d.tmax!=null)),today:2,src});
+async function getJSON(u){const r=await fetch(u);if(!r.ok)throw new Error("forecast service answered "+r.status);return r.json()}
+async function forecast(lat,lon){
+ if($("#demo").checked)return demoFc();
  const key=lat.toFixed(2)+","+lon.toFixed(2);if(fcCache[key])return fcCache[key];
- const u="https://api.open-meteo.com/v1/forecast?latitude="+lat.toFixed(3)+"&longitude="+lon.toFixed(3)+
-  "&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max&timezone=Asia%2FKolkata&past_days=2&forecast_days=7";
- const r=await fetch(u);if(!r.ok)throw new Error("forecast service answered "+r.status);const j=(await r.json()).daily;
- const days=j.time.map((t,i)=>({date:t,tmax:j.temperature_2m_max[i],tmin:j.temperature_2m_min[i],app:j.apparent_temperature_max[i]}))
-  .filter(d=>d.tmax!=null);
- return fcCache[key]={days:classify(days),today:2,src:"Forecast: Open-Meteo, fetched "+new Date().toLocaleTimeString()+"."}}
+ const j=await getJSON(OM+"&latitude="+lat.toFixed(3)+"&longitude="+lon.toFixed(3));
+ return fcCache[key]=parseFc(j.daily,"Forecast: Open-Meteo, fetched "+new Date().toLocaleTimeString()+".")}
+// ---- map: risk now for every ward (one request; wards share the nearest point on a ~5 km grid) ----
+let WARDFC=null,allReq=0;
+function nowRisk(w){const fc=WARDFC&&WARDFC[w.id];if(!fc||w.score===undefined)return null;
+ const ahead=fc.days.slice(fc.today,fc.today+7),d=$("#day").value;
+ const lvl=d==="all"?Math.max(...ahead.map(x=>x.level)):(ahead[+d]||{level:0}).level;return MATRIX[lvl][tier(w.cls)]}
+async function loadAll(){const my=++allReq;WARDFC=null;$("#mapstatus").textContent="Loading the forecast for every ward…";paint();
+ const byId={};let src;
+ try{if($("#demo").checked){const fc=demoFc();DATA.wards.forEach(w=>byId[w.id]=fc);src=fc.src}
+  else{const grid={},k=w=>(Math.round(w.lat*20)/20).toFixed(2)+","+(Math.round(w.lon*20)/20).toFixed(2);
+   DATA.wards.forEach(w=>(grid[k(w)]=grid[k(w)]||[]).push(w));const keys=Object.keys(grid);
+   let j=await getJSON(OM+"&latitude="+keys.map(x=>x.split(",")[0]).join(",")+"&longitude="+keys.map(x=>x.split(",")[1]).join(","));
+   if(!Array.isArray(j))j=[j];src="Forecast: Open-Meteo, fetched "+new Date().toLocaleTimeString()+".";
+   j.forEach((loc,i)=>{const fc=parseFc(loc.daily,src);grid[keys[i]].forEach(w=>byId[w.id]=fc)})}}
+ catch(e){if(my!==allReq)return;$("#mapstatus").innerHTML=`<span class="flag">Couldn't load the forecast (${e.message}). Check the internet connection, or tick the demo box.</span>`;return}
+ if(my!==allReq)return;WARDFC=byId;
+ const ahead=Object.values(byId)[0].days.slice(2,9),sel=$("#day"),keep=sel.value;
+ sel.innerHTML='<option value="all">the next 7 days (worst day)</option>'+ahead.map((d,i)=>`<option value="${i}">${i===0?"today":dayName(d.date)}</option>`).join("");
+ sel.value=[...sel.options].some(o=>o.value===keep)?keep:"all";
+ $("#mapstatus").textContent=src+" Each ward's risk combines the worst forecast day (or the day picked) with its vulnerability class, as in the panel on the right.";paint()}
 function toXY(lat,lon){return[(lon-P.lon0)*P.cx*P.k,(P.lat0-lat)*P.k]}
 function wardAt(lat,lon){const[x,y]=toXY(lat,lon);
  if(x<-20||y<-20||x>DATA.W+20||y>DATA.H+20)return null;
@@ -157,7 +182,7 @@ async function setHere(h){here=h;const b=$("#youbody");
  b.className="";
  if(!h.ward){b.innerHTML='<div class="flag">This location is outside Delhi. The heat outlook and ward risk cover Delhi only, so click a ward on the map or search for one instead.</div>';return}
  b.innerHTML='<div class="sm">Getting the forecast…</div>';
- let fc;try{fc=await forecast(h.lat,h.lon)}catch(e){if(here!==h)return;
+ let fc;try{fc=!h.gps&&WARDFC&&WARDFC[h.ward.id]?WARDFC[h.ward.id]:await forecast(h.lat,h.lon)}catch(e){if(here!==h)return;
   b.innerHTML=`<div class="flag">Couldn't get the forecast (${e.message}). Check the internet connection and try again, or tick the demo box.</div>`;return}
  if(here!==h)return; // a newer request replaced this one
  renderHere(h,fc)}
@@ -177,7 +202,7 @@ function renderHere(h,fc){const w=h.ward,scoredWard=w&&w.score!==undefined,ahead
  $("#youbody").innerHTML=(risk===null?"":`<div class="risk" style="background:${RISKCOL[risk]};color:${risk===3?"#fff":"#1c1c1a"}">${RISK[risk]}</div>`)+
   `<div class="headline">${head}</div>${wardLine}<div class="days">${strip}</div><div class="legend" style="margin-top:0">${key}</div>`+
   (risk===null?"":`<div class="advice">${ADVICE[risk]}</div>`)+
-  `<div class="sm" style="margin-top:6px">${fc.src} Daily max/min and feels-like max. Heat wave = IMD rule: 2+ days at 40 °C or more and 4.5 °C above Delhi's normal, or 45 °C or more.${h.gps?"":" Forecast for a point inside the ward."}</div>`}
+  `<div class="sm" style="margin-top:6px">${fc.src} Daily max/min and feels-like max. Heat wave = IMD rule: 2+ days at 40 °C or more and 4.5 °C above Delhi's normal, or 45 °C or more.${h.gps?"":" Forecast for the ward's area."}</div>`}
 $("#locate").addEventListener("click",()=>{const b=$("#locate");
  if(!navigator.geolocation){$("#youbody").innerHTML='<div class="flag">This browser cannot share its location. Click your ward on the map instead.</div>';return}
  b.disabled=true;b.textContent="Locating…";
@@ -186,8 +211,11 @@ $("#locate").addEventListener("click",()=>{const b=$("#locate");
   e=>{b.disabled=false;b.textContent="Use my location";
   $("#youbody").innerHTML=`<div class="flag">Couldn't get your location (${e.code===1?"permission denied":"location unavailable"}). Click your ward on the map instead.</div>`},
   {timeout:15000,maximumAge:600000})});
-$("#demo").addEventListener("change",()=>{if(here)setHere({...here})});
+$("#demo").addEventListener("change",async()=>{await loadAll();if(here)setHere({...here})});
+$("#day").addEventListener("change",paint);
 {const q=new URLSearchParams(location.search);if(q.has("demo"))$("#demo").checked=true; // ?lat=..&lon=.. simulates a GPS position; ?ward=ID picks a ward
  if(q.has("lat")&&q.has("lon")){const lat=+q.get("lat"),lon=+q.get("lon");setHere({lat,lon,gps:true,ward:wardAt(lat,lon)})}
- else if(q.has("ward")){const w=DATA.wards.find(x=>x.id===q.get("ward"));if(w)setHere({lat:w.lat,lon:w.lon,ward:w})}}
+ else if(q.has("ward")){const w=DATA.wards.find(x=>x.id===q.get("ward"));if(w)setHere({lat:w.lat,lon:w.lon,ward:w})}
+ if(q.has("day"))$("#day").innerHTML+=`<option value="${q.get("day")}"></option>`,$("#day").value=q.get("day")}
+paint();loadAll();
 </script></body></html>

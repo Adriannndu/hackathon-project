@@ -26,6 +26,10 @@ needs an internet connection; the rest of the page works offline.
   | Hot (40 °C+), no heat wave | Low | Low | Medium |
   | Heat wave | Medium | High | High |
   | Severe heat wave | High | High | High |
+- **Map colours:** by default the map shows this combined risk for every ward ("Heat risk now"):
+  one batched Open-Meteo request for about 51 points on a ~5 km grid, with each ward using its
+  nearest point. A day picker switches between the worst of the next 7 days and a single day.
+  The vulnerability class and scores are still available in the "Colour by" menu.
 - **Outside Delhi:** no forecast or risk is shown. The normals and ward scores are Delhi-only.
 - **Demo mode** (checkbox, or `?demo=1`): replays the observed 22–30 May 2024 Delhi heat wave
   (`inputs/demo_may2024.csv`) as if 24 May were today. For testing, `?lat=..&lon=..` stands in
