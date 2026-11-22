@@ -1,0 +1,231 @@
+/* =====================================================================
+   Look: a soft field notebook. Warm paper, brown-black ink, a muted terracotta accent.
+   Fonts: Young Serif (headings), Atkinson Hyperlegible (text), Spline Sans Mono (numbers).
+   Motion: one easing curve everywhere, so things move like they belong together.
+   ===================================================================== */
+* { box-sizing: border-box; }
+:root {
+  --paper: #f5f0e6;
+  --paper-2: #ece5d6;
+  --field: #fbf8f2;
+  --ink: #2b241c;
+  --ink-soft: #51483d;
+  --mute: #857a6b;
+  --rule: rgba(43, 36, 28, 0.16);
+  --accent: #a4482c;
+  --accent-dark: #833820;
+  --serif: "Young Serif", Georgia, "Times New Roman", serif;
+  --sans: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Spline Sans Mono", ui-monospace, Menlo, Consolas, monospace;
+  --ease: cubic-bezier(0.22, 0.9, 0.24, 1);
+  --panel-w: 420px;
+}
+html, body { margin: 0; height: 100%; overflow: hidden; font: 15px/1.55 var(--sans); color: var(--ink); background: var(--paper); }
+body { position: relative; }
+
+/* The map fills the window */
+#map { position: absolute; inset: 0; background: #e2dccf; }
+
+/* The panel floats over the left of the map and can slide away */
+#panel {
+  position: absolute; z-index: 1000; left: 0; top: 0; bottom: 0; width: var(--panel-w);
+  padding: 26px 26px 40px; overflow-y: auto; overscroll-behavior: contain;
+  background: var(--paper);
+  box-shadow: 1px 0 0 var(--rule), 14px 0 40px -22px rgba(43, 36, 28, 0.45);
+  transform: translateX(0); transition: transform 0.55s var(--ease);
+  scrollbar-width: thin; scrollbar-color: rgba(43, 36, 28, 0.25) transparent;
+}
+body.panel-closed #panel { transform: translateX(-100%); }
+
+/* The little tab on the panel's edge that hides / shows it */
+#panel-toggle {
+  position: absolute; z-index: 1001; top: 22px; left: var(--panel-w);
+  width: 26px; height: 52px; padding: 0; display: grid; place-items: center;
+  font: 20px/1 var(--serif); color: var(--ink-soft); background: var(--paper);
+  border: 0; border-radius: 0 8px 8px 0; cursor: pointer;
+  box-shadow: 1px 0 0 var(--rule), 6px 2px 14px -6px rgba(43, 36, 28, 0.35);
+  transition: left 0.55s var(--ease), background 0.2s;
+}
+#panel-toggle:hover { background: var(--paper-2); }
+#panel-toggle span { display: block; transition: transform 0.55s var(--ease); }
+body.panel-closed #panel-toggle { left: 0; }
+body.panel-closed #panel-toggle span { transform: rotate(180deg); }
+
+/* Header */
+h1 { margin: 0 0 8px; font: 400 40px/1 var(--serif); letter-spacing: -0.01em; }
+.sub { margin: 0 0 16px; color: var(--ink-soft); font-size: 14px; }
+.sm { font-size: 13px; color: var(--mute); }
+.muted { color: var(--mute); }
+.note { margin: 8px 0 0; }
+.hidden { display: none !important; }
+ul { margin: 6px 0 6px 18px; padding: 0; }
+li { margin: 2px 0; }
+li::marker { color: var(--accent); }
+h3 { margin: 16px 0 6px; font: 400 15px var(--serif); }
+
+/* Numbered section headings: 01 Find your ward, 02 The map, ... */
+.page { counter-reset: sec; }
+.page > h2 {
+  counter-increment: sec; display: flex; align-items: baseline; gap: 10px;
+  margin: 30px 0 12px; padding-bottom: 7px; border-bottom: 1px dotted rgba(43, 36, 28, 0.35);
+  font: 400 20px/1.2 var(--serif);
+}
+.page > h2::before { content: counter(sec, decimal-leading-zero); font: 500 11px var(--mono); color: var(--accent); letter-spacing: 0.06em; }
+
+/* The "read this first" note */
+.banner {
+  margin: 4px 0 14px; padding: 10px 13px; font-size: 13px; line-height: 1.55; color: var(--ink-soft);
+  background: rgba(164, 72, 44, 0.06); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0;
+}
+.banner b { color: var(--ink); }
+
+/* Form controls */
+label.t { display: flex; gap: 8px; align-items: center; margin: 8px 0; font-size: 13.5px; color: var(--ink-soft); }
+input[type="checkbox"] { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); flex: none; }
+select, input[type="text"], input:not([type]) {
+  font: inherit; font-size: 14.5px; padding: 9px 11px; color: var(--ink); background: var(--field);
+  border: 1px solid rgba(43, 36, 28, 0.22); border-radius: 7px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+select { padding: 7px 9px; }
+select:focus, input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(164, 72, 44, 0.18); }
+#search { width: 100%; margin-top: 10px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 4px; }
+
+/* Buttons (panel only, so the map's own controls keep their look) */
+#panel button {
+  font: 700 14px var(--sans); width: 100%; padding: 10px 14px; color: #fffaf3; background: var(--accent);
+  border: 0; border-radius: 7px; cursor: pointer;
+  transition: background 0.2s, transform 0.15s var(--ease), box-shadow 0.2s;
+}
+#panel button:hover { background: var(--accent-dark); }
+#panel button:active { transform: scale(0.98); }
+#panel button:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(164, 72, 44, 0.3); }
+#panel button:disabled { opacity: 0.6; cursor: wait; }
+#panel button.small { width: auto; flex: none; }
+#panel button.secondary { margin-top: 10px; color: var(--ink); background: transparent; border: 1px solid rgba(43, 36, 28, 0.3); }
+#panel button.secondary:hover { background: var(--paper-2); }
+#panel button.back { width: auto; padding: 6px 0; color: var(--accent); background: none; font-weight: 700; }
+#panel button.back:hover { color: var(--accent-dark); background: none; }
+
+/* Address box */
+#address-box { display: flex; gap: 8px; margin: 0; }
+.addr-field { position: relative; flex: 1; min-width: 0; }
+#address-input { width: 100%; }
+/* the suggestions under the address box */
+.suggest {
+  position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); max-height: 300px; overflow-y: auto;
+  background: var(--field); border: 1px solid rgba(43, 36, 28, 0.22); border-radius: 8px;
+  box-shadow: 0 12px 30px -14px rgba(43, 36, 28, 0.5); animation: arrive 0.2s var(--ease) both;
+}
+.suggest .opt { padding: 8px 11px; font-size: 14px; line-height: 1.3; cursor: pointer; }
+.suggest .opt + .opt { border-top: 1px dotted var(--rule); }
+.suggest .opt span { display: block; margin-top: 1px; font-size: 12px; color: var(--mute); }
+.suggest .opt:hover, .suggest .opt.active { background: rgba(164, 72, 44, 0.09); }
+.suggest .credit { padding: 6px 11px; font-size: 10.5px; color: var(--mute); border-top: 1px solid var(--rule); }
+#address-note { margin: 6px 0 0; }
+#my-status { margin-top: 10px; padding: 8px 11px; color: #6b2f17; background: rgba(164, 72, 44, 0.08); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; }
+
+/* Page changes: the old page eases out to the right, then the new one glides in from the left,
+   one block after another, so the eye can follow it */
+@keyframes page-out { to { opacity: 0; transform: translateX(14px); } }
+@keyframes page-in  { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
+.page.out { animation: page-out 0.24s ease-in both; }
+.page.in > * { animation: page-in 0.75s var(--ease) both; }
+.page.in > *:nth-child(2) { animation-delay: 0.06s; }
+.page.in > *:nth-child(3) { animation-delay: 0.12s; }
+.page.in > *:nth-child(4) { animation-delay: 0.18s; }
+.page.in > *:nth-child(5) { animation-delay: 0.24s; }
+.page.in > *:nth-child(6) { animation-delay: 0.30s; }
+.page.in > *:nth-child(n+7) { animation-delay: 0.34s; }
+/* New forecast content fades up gently when it arrives */
+@keyframes arrive { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+#youbody.arrive { animation: arrive 0.55s var(--ease) both; }
+
+/* Ward page sections */
+.card { margin-top: 18px; padding-bottom: 18px; border-bottom: 1px dotted rgba(43, 36, 28, 0.35); }
+.card:last-child { border-bottom: 0; }
+#you > h2 { margin: 0 0 10px; font: 500 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+#detail > h2 { margin: 0 0 8px; font: 400 26px/1.15 var(--serif); }
+
+/* Legend */
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 10px; font-size: 12.5px; color: var(--ink-soft); }
+.legend i { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(43, 36, 28, 0.2); }
+.legend .grad { display: inline-block; width: 160px; height: 10px; border-radius: 5px; box-shadow: inset 0 0 0 1px rgba(43, 36, 28, 0.15); }
+
+/* Score bars */
+.bar { display: grid; grid-template-columns: 128px 1fr 32px; gap: 10px; align-items: center; font-size: 13px; margin: 6px 0; }
+.bar div.b { height: 8px; background: rgba(43, 36, 28, 0.08); border-radius: 4px; overflow: hidden; }
+.bar div.b span { display: block; height: 100%; border-radius: 4px; animation: grow 0.7s var(--ease) both; transform-origin: left; }
+.bar > span:last-child { font: 500 12.5px var(--mono); text-align: right; color: var(--ink-soft); }
+@keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Tables */
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th { padding: 6px; text-align: left; font: 500 10.5px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); border-bottom: 1px solid rgba(43, 36, 28, 0.3); }
+td { padding: 6px; border-bottom: 1px dotted rgba(43, 36, 28, 0.25); }
+td.n, th.n { text-align: right; }
+td.n { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+tr.row { cursor: pointer; transition: background 0.15s; }
+tr.row:hover { background: rgba(164, 72, 44, 0.08); }
+.facts td:first-child { color: var(--ink-soft); }
+
+/* Tags and notes */
+.pill { display: inline-block; padding: 1px 9px; font: 700 11.5px var(--sans); letter-spacing: 0.04em; border-radius: 4px; }
+.flag { display: inline-block; margin-top: 8px; padding: 4px 9px; font-size: 12.5px; color: #6b2f17; background: rgba(164, 72, 44, 0.08); border-radius: 5px; }
+details { margin-top: 12px; }
+summary { cursor: pointer; font: 400 15px var(--serif); }
+summary::marker { color: var(--accent); }
+
+/* "Your heat risk": the verdict, then the 7-day strip */
+.risk { display: inline-block; padding: 4px 14px; margin-bottom: 8px; font: 400 24px var(--serif); border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(43, 36, 28, 0.15); }
+.headline { margin: 6px 0 8px; font-size: 15px; }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 12px 0 10px; }
+.day {
+  padding: 5px 1px 6px; text-align: center; font: 400 10.5px/1.35 var(--mono); color: var(--mute);
+  background: var(--field); border: 1px solid var(--rule); border-radius: 6px;
+}
+.day b { display: block; margin: 1px 0; font: 500 16px var(--mono); color: var(--ink); }
+.day.today { border: 1.5px solid var(--accent); }
+.day i { display: block; height: 4px; margin: 5px 6px 0; border-radius: 2px; }
+.advice { margin-top: 10px; padding: 9px 12px; font-size: 13.5px; background: var(--paper-2); border-radius: 7px; }
+
+/* Map furniture (MapLibre's zoom buttons and credits, restyled to match the panel) */
+.maplibregl-map { font: 13px var(--sans); }
+.maplibregl-ctrl-group:not(:empty) {
+  overflow: hidden; background: var(--paper); border-radius: 8px;
+  box-shadow: 0 1px 0 var(--rule), 0 6px 18px -8px rgba(43, 36, 28, 0.45);
+}
+.maplibregl-ctrl-group button { width: 32px; height: 32px; transition: background 0.15s; }
+.maplibregl-ctrl-group button + button { border-top: 1px solid var(--rule); }
+.maplibregl-ctrl-group button:not(:disabled):hover { background: var(--paper-2); }
+.maplibregl-ctrl-group button:focus-visible { box-shadow: inset 0 0 0 2px rgba(164, 72, 44, 0.45); }
+.maplibregl-ctrl-group button.home-btn { display: grid; place-items: center; color: var(--ink); }
+.maplibregl-ctrl-group button.home-btn:hover { color: var(--accent); }
+.maplibregl-ctrl-group button.home-btn svg { display: block; }
+.maplibregl-ctrl-attrib { font: 10.5px var(--sans); }
+.maplibregl-ctrl-attrib.maplibregl-compact { background: rgba(245, 240, 230, 0.9); }
+.maplibregl-ctrl-attrib a { color: var(--ink-soft); }
+.no-map { margin: 30% auto 0; max-width: 360px; padding: 16px; text-align: center; color: var(--ink-soft); }
+
+/* The single hover label */
+@keyframes tip-in { from { opacity: 0; } to { opacity: 1; } }
+.ward-tip {
+  position: absolute; left: 0; top: 0; z-index: 800; display: none; pointer-events: none; max-width: 260px;
+  padding: 5px 10px; font: 400 12.5px/1.4 var(--sans); color: #f8f2e7; background: rgba(43, 36, 28, 0.92);
+  border-radius: 6px; box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.5);
+  will-change: transform; animation: tip-in 0.15s ease-out;
+}
+
+/* Phones: map on top, panel as a sheet along the bottom */
+@media (max-width: 800px) {
+  #panel { top: auto; width: 100%; height: 46vh; padding: 18px 18px 30px; transform: none !important;
+    box-shadow: 0 -1px 0 var(--rule), 0 -14px 40px -22px rgba(43, 36, 28, 0.45); }
+  #panel-toggle { display: none; }
+  h1 { font-size: 32px; }
+}
+
+/* People who've asked their system for less motion get instant changes */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

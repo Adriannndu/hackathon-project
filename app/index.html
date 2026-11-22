@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HeatWatch Delhi</title>
+  <!-- MapLibre GL = the free map library. It draws the map with the graphics card, so it stays sharp
+       and smooth while zooming. Loaded from a CDN, so no install needed. -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+  <!-- Fonts: Young Serif (headings), Atkinson Hyperlegible (text, built for easy reading), Spline Sans Mono (numbers).
+       Falls back to system fonts offline. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;500&family=Young+Serif&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- The map fills the window; the panel floats over its left side and can slide away. -->
+  <div id="map"></div>
+
+  <aside id="panel">
+    <header class="masthead">
+      <h1>HeatWatch</h1>
+      <p class="sub">Is a heat wave coming to your part of Delhi, and how exposed is your ward when one hits? A 7-day forecast, plus a score for each ward on heat hazard, exposure, sensitivity and ability to cope.</p>
+    </header>
+
+    <div class="banner"><b>Read this first.</b> The ward score is a <b>relative</b> ranking of Delhi's wards, not a probability of anyone being harmed, and it has not been checked against heat-illness data. The heat-wave outlook applies the IMD rule to a weather-model forecast, not to official IMD warnings. Follow IMD and Delhi government alerts, and treat this as a way to ask "where should we look first?"</div>
+
+    <label class="t switch"><input type="checkbox" id="demo"> Demo: replay the May 2024 Delhi heat wave as the forecast</label>
+
+    <!-- ============ OVERVIEW: shown when no ward is open ============ -->
+    <div id="overview-view" class="page">
+      <h2>Find your ward</h2>
+      <!-- Address search: suggestions appear as you type; pick one or press Enter -->
+      <form id="address-box" autocomplete="off" role="search">
+        <div class="addr-field">
+          <input id="address-input" type="text" placeholder="Enter your address or area" role="combobox"
+                 aria-label="Address" aria-autocomplete="list" aria-controls="address-list" aria-expanded="false">
+          <div id="address-list" class="suggest hidden" role="listbox" aria-label="Matching addresses"></div>
+        </div>
+        <button id="address-btn" class="small" type="submit">Find my ward</button>
+      </form>
+      <p id="address-note" class="sm hidden" role="status"></p>
+      <button id="locate-btn" class="secondary">Use my current location</button>
+      <input id="search" list="names" placeholder="Or search for a ward by name…" autocomplete="off">
+      <datalist id="names"></datalist>
+      <div id="my-status" class="sm hidden"></div>
+
+      <h2>The map</h2>
+      <div class="controls">
+        <label class="t">Colour by <select id="layer"></select></label>
+      </div>
+      <label class="t"><input type="checkbox" id="named"> Outline wards named in the Heat Action Plan / CSE</label>
+      <div class="legend" id="legend"></div>
+      <p class="sm note">Dashed outline: Census-based factors were estimated for this ward (the Census has no row for it). Grey: not scored.</p>
+
+      <h2>Top 25 wards</h2>
+      <table id="top"></table>
+
+      <h2>How it works, and its limits</h2>
+      <div id="method"></div>
+    </div>
+
+    <!-- ============ WARD PAGE: opens when a ward is clicked ============ -->
+    <div id="ward-page" class="page hidden">
+      <button id="ward-back" class="back">← All wards</button>
+      <section class="card" id="you"><h2>Your heat risk</h2><div id="youbody" class="sm">Getting the forecast…</div></section>
+      <section class="card" id="detail"></section>
+    </div>
+  </aside>
+
+  <button id="panel-toggle" aria-controls="panel" aria-expanded="true" title="Hide the panel"><span aria-hidden="true">‹</span></button>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="risk-data.js"></script>
+  <script src="wards.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
