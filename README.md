@@ -17,8 +17,10 @@ HeatLens is an application that identifies which regions are most vulnerable dur
 * Risk Factor Detection: Our application uses a specialized ranking algorithm to determine which regions are most vulnerable 
 * Live Heat Map: Our application displays a live heat map which shows users which regions are currently at risk. 
 * User Location: Determines where the user is, or the user can choose a regions to determine the current risk. 
-##Preview
+
+## Preview
 ADD SCREENSHOT
+
 ### Who can use it 
 Planners and officials can use HeatLens to decide where to send water, cooling, and medical aid first. Community groups can use it to find the areas that need the most support. 
 
