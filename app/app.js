@@ -34,8 +34,10 @@ const scored = places.filter((p) => p.score !== undefined);
 const PAL = ["#ffffcc", "#fed976", "#fd8d3c", "#e31a1c", "#800026"];
 const CLS = ["Low", "Moderate", "High", "Very High", "Extreme"];
 const NOT_SCORED = "#c9c3b3";
-const layers = [["cls", "Risk class (overall)"], ["score", "Overall risk score"],
-  ...DATA.groups.map((g) => ["g:" + g, g + " score"])];
+// "now" (the default) is the heat risk right now: the forecast combined with the ward's vulnerability.
+// The others show the vulnerability ranking alone, i.e. how the ward would fare if a heat wave hit.
+const layers = [["now", "Heat risk now (forecast)"], ["cls", "Vulnerability class (if a heat wave hits)"],
+  ["score", "Vulnerability score"], ...DATA.groups.map((g) => ["g:" + g, g + " score"])];
 layers.forEach(([v, t]) => {
   const o = document.createElement("option");
   o.value = v; o.textContent = t;
@@ -52,13 +54,30 @@ function interp(t) { // smooth blend along the palette, t from 0 to 1
 const val = (p, L) => (L === "score" ? p.score : p.groups[L.slice(2)]);
 // colour scale runs from the 2nd to the 98th percentile so a few outliers don't wash it out
 const RANGE = {};
-layers.slice(1).forEach(([L]) => {
+layers.slice(2).forEach(([L]) => { // the number layers only
   const v = scored.map((p) => val(p, L)).sort((a, b) => a - b);
   RANGE[L] = [v[Math.floor(v.length * 0.02)], v[Math.floor(v.length * 0.98)]];
 });
+// Heat risk = worst forecast heat level (next 7 days, or one picked day) x the ward's vulnerability class.
+// Defined here, not in section 6, because the map asks for colours as soon as it is created.
+const RISK = ["No risk", "Low risk", "Medium risk", "High risk"];
+const RISKCOL = ["#d9ead3", "#fed976", "#fd8d3c", "#b10026"];
+const LOADING = "#e9e4d8"; // while the forecast is on its way
+// ward class -> tier (0: Low/Moderate, 1: High, 2: Very High/Extreme); rows = heat level 0 normal .. 3 severe heat wave
+const tier = (c) => (c === "High" ? 1 : c === "Very High" || c === "Extreme" ? 2 : 0);
+const MATRIX = [[0, 0, 0], [1, 1, 2], [2, 3, 3], [3, 3, 3]];
+let WARDFC = null; // ward id -> its forecast; filled in by loadMapForecast() (section 6)
+function nowRisk(p) {
+  const fc = WARDFC && WARDFC[p.id];
+  if (!fc || p.score === undefined) return null;
+  const ahead = fc.days.slice(fc.today, fc.today + 7), day = $("#day").value;
+  const lvl = day === "all" ? Math.max(...ahead.map((d) => d.level)) : (ahead[+day] || { level: 0 }).level;
+  return MATRIX[lvl][tier(p.cls)];
+}
 function colour(p) {
   if (p.score === undefined) return NOT_SCORED;
   const L = $("#layer").value;
+  if (L === "now") { const r = nowRisk(p); return r === null ? LOADING : RISKCOL[r]; }
   if (L === "cls") return PAL[CLS.indexOf(p.cls)];
   const [lo, hi] = RANGE[L];
   return interp(hi > lo ? (val(p, L) - lo) / (hi - lo) : 0.5);
@@ -248,8 +267,11 @@ function setHover(id) {
   if (id === null) { tip.style.display = "none"; tipText = ""; return; }
   const p = places[id];
   if (p !== selected) map.setFeatureState({ source: "wards", id }, { hover: true });
+  const r = $("#layer").value === "now" ? nowRisk(p) : null;
   const text = selected && selected !== p ? p.label
-    : p.score === undefined ? `${p.label} (not scored)` : `${p.label}: ${p.cls} (${p.score.toFixed(0)}), rank ${p.rank}`;
+    : p.score === undefined ? `${p.label} (not scored)`
+    : r !== null ? `${p.label}: ${RISK[r]} · ${p.cls} vulnerability`
+    : `${p.label}: ${p.cls} (${p.score.toFixed(0)}), rank ${p.rank}`;
   if (text !== tipText) { tip.textContent = text; tipText = text; }
   tip.style.display = "block";
 }
@@ -364,13 +386,9 @@ $("#panel-toggle").addEventListener("click", () => setPanel(!panelOpen()));
 
 // ---------- 6. HEAT OUTLOOK: FORECAST x WARD RISK ---------------------
 const R = DATA.rule;
-const RISK = ["No risk", "Low risk", "Medium risk", "High risk"];
-const RISKCOL = ["#d9ead3", "#fed976", "#fd8d3c", "#b10026"];
 const LEVEL = ["normal", "hot (40 °C+)", "heat wave", "severe heat wave"];
 const LEVCOL = ["#e4e2da", "#fed976", "#e31a1c", "#800026"];
-// ward risk class -> tier (0: Low/Moderate, 1: High, 2: Very High/Extreme); rows = worst heat level in the next 7 days
-const tier = (c) => (c === "High" ? 1 : c === "Very High" || c === "Extreme" ? 2 : 0);
-const MATRIX = [[0, 0, 0], [1, 1, 2], [2, 3, 3], [3, 3, 3]];
+// (RISK, RISKCOL, tier and MATRIX are in section 2)
 const ADVICE = [
   "No heat-related precautions needed beyond the usual.",
   "Drink water regularly and avoid strenuous activity outdoors in the early afternoon.",
@@ -412,30 +430,80 @@ function classify(days) {
 }
 
 // 2 past days (so a heat wave already under way is caught) + today + 6 days
-async function forecast(lat, lon) {
-  if ($("#demo").checked) {
-    return { days: classify(DATA.demo.map((d) => ({ ...d }))), today: 2,
-      src: "Demo: observed Delhi temperatures, 22–30 May 2024, shown as if 24 May were today." };
-  }
-  // Open-Meteo's weather grid is about 11 km wide, so wards close together share one request
-  const key = lat.toFixed(1) + "," + lon.toFixed(1);
-  const hit = fcCache[key];
-  if (hit && Date.now() - hit.at < FORECAST_TTL_MS) return hit.value;
-  const url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat.toFixed(3) + "&longitude=" + lon.toFixed(3) +
-    "&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max&timezone=Asia%2FKolkata&past_days=2&forecast_days=7";
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("forecast service answered " + res.status);
-  const j = (await res.json()).daily;
+const FC_URL = "https://api.open-meteo.com/v1/forecast?daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max" +
+  "&timezone=Asia%2FKolkata&past_days=2&forecast_days=7";
+const demoForecast = () => ({ days: classify(DATA.demo.map((d) => ({ ...d }))), today: 2,
+  src: "Demo: observed Delhi temperatures, 22–30 May 2024, shown as if 24 May were today." });
+function parseDaily(j, src) {
   const days = j.time.map((t, i) => ({
     date: t, tmax: j.temperature_2m_max[i], tmin: j.temperature_2m_min[i], app: j.apparent_temperature_max[i],
   }));
   // find today by date (not by position), in Delhi's time zone
   const todayStr = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
   const idx = j.time.indexOf(todayStr);
-  const value = { days: classify(days), today: idx >= 0 ? idx : 2,
-    src: "Forecast: Open-Meteo, fetched " + new Date().toLocaleTimeString() + "." };
+  return { days: classify(days), today: idx >= 0 ? idx : 2, src };
+}
+async function forecast(lat, lon) {
+  if ($("#demo").checked) return demoForecast();
+  // Open-Meteo's weather grid is about 11 km wide, so wards close together share one request
+  const key = lat.toFixed(1) + "," + lon.toFixed(1);
+  const hit = fcCache[key];
+  if (hit && Date.now() - hit.at < FORECAST_TTL_MS) return hit.value;
+  const res = await fetch(FC_URL + "&latitude=" + lat.toFixed(3) + "&longitude=" + lon.toFixed(3));
+  if (!res.ok) throw new Error("forecast service answered " + res.status);
+  const value = parseDaily((await res.json()).daily, "Forecast: Open-Meteo, fetched " + new Date().toLocaleTimeString() + ".");
   fcCache[key] = { at: Date.now(), value };
   return value;
+}
+
+// The map's colours: the forecast for every ward, in one request. Wards share the nearest point of a
+// ~5 km grid (about 50 points for all of Delhi).
+let mapReq = 0;
+function mapStatus(text, warn) {
+  const el = $("#map-status");
+  el.textContent = text;
+  el.classList.toggle("flag", !!warn);
+}
+async function loadMapForecast() {
+  const my = ++mapReq; // only the newest request counts
+  WARDFC = null;
+  mapStatus("Loading the forecast for every ward…");
+  paint();
+  const byWard = {};
+  let src;
+  try {
+    if ($("#demo").checked) {
+      const fc = demoForecast();
+      places.forEach((p) => (byWard[p.id] = fc));
+      src = fc.src;
+    } else {
+      const cellOf = (p) => (Math.round(p.lat * 20) / 20).toFixed(2) + "," + (Math.round(p.lon * 20) / 20).toFixed(2);
+      const grid = {};
+      places.forEach((p) => (grid[cellOf(p)] = grid[cellOf(p)] || []).push(p));
+      const cells = Object.keys(grid);
+      const res = await fetch(FC_URL + "&latitude=" + cells.map((c) => c.split(",")[0]).join(",") +
+        "&longitude=" + cells.map((c) => c.split(",")[1]).join(","));
+      if (!res.ok) throw new Error("forecast service answered " + res.status);
+      let j = await res.json();
+      if (!Array.isArray(j)) j = [j]; // a single point comes back as one object
+      src = "Forecast: Open-Meteo, fetched " + new Date().toLocaleTimeString() + ".";
+      j.forEach((loc, i) => { const fc = parseDaily(loc.daily, src); grid[cells[i]].forEach((p) => (byWard[p.id] = fc)); });
+    }
+  } catch (e) {
+    if (my !== mapReq) return;
+    mapStatus(`Couldn't load the forecast (${e.message}). Check the internet connection, or tick the demo box.`, true);
+    return;
+  }
+  if (my !== mapReq) return;
+  WARDFC = byWard;
+  // the day picker: the worst of the next 7 days, or one day
+  const first = Object.values(byWard)[0], ahead = first.days.slice(first.today, first.today + 7);
+  const sel = $("#day"), keep = sel.value;
+  sel.innerHTML = '<option value="all">the next 7 days (worst day)</option>' +
+    ahead.map((d, i) => `<option value="${i}">${i === 0 ? "today" : dayName(d.date)}</option>`).join("");
+  sel.value = [...sel.options].some((o) => o.value === keep) ? keep : "all";
+  mapStatus(src + " Each ward's colour combines the worst forecast day (or the day picked) with the ward's heat vulnerability, as on its ward page.");
+  paint();
 }
 
 async function setHere(h) {
@@ -443,7 +511,7 @@ async function setHere(h) {
   const b = $("#youbody");
   b.innerHTML = '<div class="sm">Getting the forecast…</div>';
   let fc;
-  try { fc = await forecast(h.lat, h.lon); }
+  try { fc = !h.kind && WARDFC && WARDFC[h.ward.id] ? WARDFC[h.ward.id] : await forecast(h.lat, h.lon); } // same as the map
   catch (e) {
     if (here !== h) return;
     b.innerHTML = `<div class="flag">Couldn't get the forecast (${e.message}). Check the internet connection and try again, or tick the demo box.</div>`;
@@ -479,7 +547,7 @@ function renderHere(h, fc) {
     (risk === null ? "" : `<div class="risk" style="background:${RISKCOL[risk]};color:${risk === 3 ? "#fff" : "#1c1c1a"}">${RISK[risk]}</div>`) +
     `<div class="headline">${head}</div>${wardLine}<div class="days">${strip}</div><div class="legend" style="margin-top:0">${key}</div>` +
     (risk === null ? "" : `<div class="advice">${ADVICE[risk]}</div>`) +
-    `<div class="sm" style="margin-top:6px">${fc.src} Daily max/min and feels-like max. Heat wave = IMD rule: 2+ days at 40 °C or more and 4.5 °C above Delhi's normal, or 45 °C or more.${h.kind ? "" : " Forecast for a point inside the ward."}</div>`;
+    `<div class="sm" style="margin-top:6px">${fc.src} Daily max/min and feels-like max. Heat wave = IMD rule: 2+ days at 40 °C or more and 4.5 °C above Delhi's normal, or 45 °C or more.${h.kind ? "" : " Forecast for the ward's area."}</div>`;
 }
 
 // Is a point inside a ward? Inside one of its parts, and not inside a hole in that part
@@ -511,7 +579,11 @@ function wardAt(lat, lon) {
 // ---------- 7. SIDE PANEL ---------------------------------------------
 function renderLegend() {
   const L = $("#layer").value;
-  $("#legend").innerHTML = (L === "cls"
+  $("#daywrap").classList.toggle("hidden", L !== "now");
+  $("#map-status").classList.toggle("hidden", L !== "now");
+  $("#legend").innerHTML = (L === "now"
+    ? RISK.map((c, i) => `<span><i style="background:${RISKCOL[i]}"></i>${c}</span>`)
+    : L === "cls"
     ? CLS.map((c, i) => `<span><i style="background:${PAL[i]}"></i>${c}</span>`)
     : [`<span>${RANGE[L][0].toFixed(0)}</span><span class="grad" style="background:linear-gradient(to right,${PAL.join(",")})"></span><span>${RANGE[L][1].toFixed(0)} (low to high risk)</span>`]
   ).join("") + `<span><i style="background:${NOT_SCORED}"></i>not scored</span>`;
@@ -547,12 +619,9 @@ $("#top").innerHTML = "<tr><th>#</th><th>Ward</th><th>Class</th><th class='n'>Sc
   `<tr><td colspan="4" class="sm">* Census-based factors estimated</td></tr>`;
 document.querySelectorAll("tr.row").forEach((r) => r.addEventListener("click", () => openWard(byId[r.dataset.id])));
 
-const ck = DATA.check, au = ck.auc_named_high_vs_named_low;
 $("#method").innerHTML = `<p>Each of ${DATA.n_scored} wards is ranked against the others on ${DATA.indicators.length} indicators, grouped into <b>heat hazard</b>, <b>exposure</b>, <b>sensitivity</b> and <b>adaptive capacity</b>. Each group counts 25%. Risk classes are quintiles (the highest fifth of wards are "Extreme").</p>
 <h3>Indicators</h3><ul>${DATA.indicators.map((i) => `<li>${i}</li>`).join("")}</ul>
-<h3>Checks</h3><ul><li>Randomly changing the group weights by ±30% hardly changes the ranking (rank correlation ${DATA.sens.mean_rank_correlation}; about ${(DATA.sens.share_of_wards_changing_class * 100).toFixed(0)}% of wards move one class).</li>
-<li>Wards named as high-risk by the Delhi Heat Action Plan or CSE rank above wards CSE calls low-heat-stress in ${(au * 100).toFixed(0)}% of pairs. The heat-hazard part of this check is not independent, because those lists also come from Landsat temperatures.</li></ul>
-<details><summary>Known limitations</summary><ul>${DATA.limits.map((l) => `<li>${l}</li>`).join("")}<li>${DATA.est.note} ${DATA.est.wards_estimated} wards affected.</li><li>Ward boundaries are the 2022 MCD delimitation (250 wards). NDMC and Delhi Cantonment, which are not MCD wards, use DataMeet's earlier outlines trimmed to fit.</li></ul></details>
+<details><summary>Known limitations</summary><ul>${DATA.limits.filter((l) => !/robustness checks/i.test(l)).map((l) => `<li>${l}</li>`).join("")}<li>${DATA.est.note} ${DATA.est.wards_estimated} wards affected.</li><li>Ward boundaries are the 2022 MCD delimitation (250 wards). NDMC and Delhi Cantonment, which are not MCD wards, use DataMeet's earlier outlines trimmed to fit.</li></ul></details>
 <details><summary>Data sources</summary><ul><li>Surface temperature &amp; vegetation: Landsat 8/9 (USGS), April–June 2019–2025</li><li>Land cover: ESA WorldCover 2021 (CC BY 4.0)</li><li>Population by age: WorldPop 2020 (CC BY 4.0)</li><li>Hospitals: OpenStreetMap contributors (ODbL)</li><li>Housing, assets, water: Census of India 2011, houselisting table HL-14</li><li>Reference lists: Delhi Heat Action Plan 2025 (DDMA) and CSE, "No time to cool" (2026)</li><li>Ward boundaries: 2022 MCD wards from OpenCity (source: Geospatial Delhi Ltd / State Election Commission of Delhi); NDMC and Cantonment from DataMeet Municipal Spatial Data (CC BY-SA 2.5 IN)</li><li>Ward populations on the 2022 map: Census 2011 figures used for the delimitation</li></ul></details>`;
 
 
@@ -563,6 +632,7 @@ places.forEach((p) => {
   $("#names").appendChild(o);
 });
 $("#layer").addEventListener("change", paint);
+$("#day").addEventListener("change", paint);
 $("#named").addEventListener("change", showNamed);
 
 $("#search").addEventListener("change", (e) => {
@@ -723,8 +793,10 @@ $("#locate-btn").addEventListener("click", () => {
   );
 });
 
-// Switching the demo on or off re-runs the outlook for the open ward
-$("#demo").addEventListener("change", () => { if (here) setHere({ ...here }); });
+// Switching the demo on or off recolours the map and re-runs the outlook for the open ward
+$("#demo").addEventListener("change", async () => { await loadMapForecast(); if (here) setHere({ ...here }); });
+// a page left open (say, on a screen at a meeting) picks up a fresh forecast every hour
+setInterval(() => { if (!$("#demo").checked) loadMapForecast(); }, FORECAST_TTL_MS);
 
 // Test helpers: ?demo turns the demo on, ?lat=..&lon=.. pretends to be a GPS position, ?ward=ID opens a ward
 {
@@ -733,4 +805,5 @@ $("#demo").addEventListener("change", () => { if (here) setHere({ ...here }); })
   renderLegend();
   if (q.has("lat") && q.has("lon")) useLocation(+q.get("lat"), +q.get("lon"));
   else if (q.has("ward") && byId[q.get("ward")]) openWard(byId[q.get("ward")]);
+  loadMapForecast();
 }
