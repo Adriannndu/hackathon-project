@@ -23,10 +23,21 @@ Screenshot of the application on a day with no heat waves. The UI is on the left
 ![The application when there is not a heat wave.](images/map_normal.png)
 
 Screenshot of the application during a heat wave. For this example, data from the May 2024 Delhi heat wave is used. 
-![The application when there is a heat wave.](images/map_during_heat_wave.png)
+![The application when there is a heat wave.](images/map_during_heat_wave_1.png)
 
-Screenshot of a specific region (Raisina Hill) being selected. On the left hand side information that determines the risk level is displayed
-![A specific region or ward being selected. Information about the ward is displayed on the left](images/specific_ward.png)
+![The application when there is a heat wave.](images/map_during_heat_wave_2.png)
+
+During a heat wave, it also shows the most crowded regions in 3D to better showcase which regions are most at risk.
+![3D view of the map](images/map_3d.png)
+
+Screenshot of a specific region being selected. On the left hand side information that determines the risk level is displayed
+![The most at risk ward being selected](images/specific_ward.png)
+
+The generated draft report that the application generates on heatwaves. It allows officals and first responders to know what to bring and where.
+![Generated report draft](images/generated_report.png)
+
+The maps also shows where to send supplies using arrows. 
+![Map of where to send supplies](images/where_to_send_supplies.png)
 
 The interace used to look up wards
 ![Looking up a certain ward](images/lookup.png)
