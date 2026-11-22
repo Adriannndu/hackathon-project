@@ -87,8 +87,8 @@ function select(id){selected=id;const w=DATA.wards.find(x=>x.id===id);paint();co
  <h3>Four groups (higher = more risk)</h3>${bars}
  <h3>What pushes the score up most</h3><div class="sm">${w.drivers.split("; ").join(" · ")}</div>
  <h3>Underlying numbers</h3><table class="facts">${facts}</table>`}
-const top=scored.slice().sort((a,b)=>a.rank-b.rank).slice(0,25);
-$("#top").innerHTML="<tr><th>#</th><th>Ward</th><th>Class</th><th class='n'>Score</th></tr>"+top.map(w=>`<tr class="row" data-id="${w.id}"><td>${w.rank}</td><td>${w.name}${w.estimated?" *":""}</td><td>${w.cls}</td><td class="n">${w.score.toFixed(1)}</td></tr>`).join("")+`<tr><td colspan="4" class="sm">* Census-based factors estimated</td></tr>`;
+const topWards=scored.slice().sort((a,b)=>a.rank-b.rank).slice(0,25);
+$("#top").innerHTML="<tr><th>#</th><th>Ward</th><th>Class</th><th class='n'>Score</th></tr>"+topWards.map(w=>`<tr class="row" data-id="${w.id}"><td>${w.rank}</td><td>${w.name}${w.estimated?" *":""}</td><td>${w.cls}</td><td class="n">${w.score.toFixed(1)}</td></tr>`).join("")+`<tr><td colspan="4" class="sm">* Census-based factors estimated</td></tr>`;
 document.querySelectorAll("tr.row").forEach(r=>r.addEventListener("click",()=>select(r.dataset.id)));
 $("#layer").addEventListener("change",paint);$("#named").addEventListener("change",paint);
 $("#search").addEventListener("change",e=>{const w=DATA.wards.find(x=>x.name.toLowerCase()===e.target.value.trim().toLowerCase());if(w)select(w.id)});
