@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 846" width="1400" height="846" role="img" aria-labelledby="t d" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title id="t">How HeatLens ranks Delhi's wards</title>
+<desc id="d">Flow diagram. 14 indicators from public datasets in four groups (heat hazard, exposure, sensitivity, ability to cope) are each ranked among Delhi's wards and averaged within their group. The four group scores count 25% each to give a 0 to 100 vulnerability score, and wards are split into five equal-sized classes from Low to Extreme. The ranking is checked against the Delhi Heat Action Plan 2025 and a CSE study.</desc>
+<defs><marker id="ah" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 z" fill="#3b3b36"/></marker></defs>
+<rect width="1400" height="846" fill="#fcfcfa"/>
+<text x="30" y="42" font-size="26" font-weight="700" fill="#1c1c1a" text-anchor="start" >How HeatLens ranks Delhi's wards</text>
+<text x="30" y="68" font-size="15" font-weight="400" fill="#55554f" text-anchor="start" >A relative ranking: every ward is compared with the other wards in Delhi.</text>
+<circle cx="43" cy="112" r="13" fill="#1c1c1a"/>
+<text x="43" y="117" font-size="14" font-weight="700" fill="#fff" text-anchor="middle" >1</text>
+<text x="64" y="118" font-size="17" font-weight="700" fill="#1c1c1a" text-anchor="start" >Collect 14 indicators</text>
+<text x="64" y="140" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >from free public datasets</text>
+<circle cx="593" cy="112" r="13" fill="#1c1c1a"/>
+<text x="593" y="117" font-size="14" font-weight="700" fill="#fff" text-anchor="middle" >2</text>
+<text x="614" y="118" font-size="17" font-weight="700" fill="#1c1c1a" text-anchor="start" >Rank, then average</text>
+<text x="614" y="140" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >Each indicator is ranked among wards</text>
+<text x="614" y="156" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >(0 = least at risk, 100 = most), then</text>
+<text x="614" y="172" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >averaged within its group</text>
+<circle cx="873" cy="112" r="13" fill="#1c1c1a"/>
+<text x="873" y="117" font-size="14" font-weight="700" fill="#fff" text-anchor="middle" >3</text>
+<text x="894" y="118" font-size="17" font-weight="700" fill="#1c1c1a" text-anchor="start" >Combine</text>
+<text x="894" y="140" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >Each group counts 25%</text>
+<circle cx="1123" cy="112" r="13" fill="#1c1c1a"/>
+<text x="1123" y="117" font-size="14" font-weight="700" fill="#fff" text-anchor="middle" >4</text>
+<text x="1144" y="118" font-size="17" font-weight="700" fill="#1c1c1a" text-anchor="start" >Score and classify</text>
+<text x="1144" y="140" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >Wards are split into 5 equal-sized</text>
+<text x="1144" y="156" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >classes</text>
+<rect x="30" y="212" width="470" height="115" rx="9" fill="#fff0e6" stroke="#c2410c" stroke-width="2"/>
+<path d="M30,221 a9,9 0 0 1 9,-9 h452 a9,9 0 0 1 9,9 v23 h-470 z" fill="#c2410c"/>
+<text x="44" y="234" font-size="16" font-weight="700" fill="#fff" text-anchor="start" >Heat hazard</text>
+<text x="486" y="234" font-size="12.5" font-weight="400" fill="#ffffff" text-anchor="end" >3 indicators</text>
+<text x="44" y="262" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Ground surface temperature</text>
+<text x="486" y="262" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">Landsat 8 &amp; 9</text>
+<line x1="40" x2="490" y1="269" y2="269" stroke="#c2410c" stroke-opacity=".25"/>
+<text x="44" y="287" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Clear days with surface temp above 45°C</text>
+<text x="486" y="287" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">Landsat 8 &amp; 9</text>
+<line x1="40" x2="490" y1="294" y2="294" stroke="#c2410c" stroke-opacity=".25"/>
+<text x="44" y="312" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Share of ward that is paved or roofed</text>
+<text x="486" y="312" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">ESA WorldCover</text>
+<path d="M504,269.5 H574" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="580" y="241.5" width="200" height="56" rx="28" fill="#c2410c"/>
+<text x="680" y="265.5" font-size="15.5" font-weight="700" fill="#fff" text-anchor="middle" >Heat hazard score</text>
+<text x="680" y="284.5" font-size="12.5" font-weight="400" fill="#fff" text-anchor="middle" >0–100</text>
+<rect x="30" y="341" width="470" height="90" rx="9" fill="#e7f1fb" stroke="#1864ab" stroke-width="2"/>
+<path d="M30,350 a9,9 0 0 1 9,-9 h452 a9,9 0 0 1 9,9 v23 h-470 z" fill="#1864ab"/>
+<text x="44" y="363" font-size="16" font-weight="700" fill="#fff" text-anchor="start" >Exposure</text>
+<text x="486" y="363" font-size="12.5" font-weight="400" fill="#ffffff" text-anchor="end" >2 indicators</text>
+<text x="44" y="391" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Population density</text>
+<text x="486" y="391" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">WorldPop</text>
+<line x1="40" x2="490" y1="398" y2="398" stroke="#1864ab" stroke-opacity=".25"/>
+<text x="44" y="416" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Number of residents</text>
+<text x="486" y="416" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">WorldPop</text>
+<path d="M504,386.0 H574" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="580" y="358.0" width="200" height="56" rx="28" fill="#1864ab"/>
+<text x="680" y="382.0" font-size="15.5" font-weight="700" fill="#fff" text-anchor="middle" >Exposure score</text>
+<text x="680" y="401.0" font-size="12.5" font-weight="400" fill="#fff" text-anchor="middle" >0–100</text>
+<rect x="30" y="445" width="470" height="140" rx="9" fill="#f0ebfd" stroke="#6741d9" stroke-width="2"/>
+<path d="M30,454 a9,9 0 0 1 9,-9 h452 a9,9 0 0 1 9,9 v23 h-470 z" fill="#6741d9"/>
+<text x="44" y="467" font-size="16" font-weight="700" fill="#fff" text-anchor="start" >Sensitivity</text>
+<text x="486" y="467" font-size="12.5" font-weight="400" fill="#ffffff" text-anchor="end" >4 indicators</text>
+<text x="44" y="495" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Share of people under age 5</text>
+<text x="486" y="495" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">WorldPop</text>
+<line x1="40" x2="490" y1="502" y2="502" stroke="#6741d9" stroke-opacity=".25"/>
+<text x="44" y="520" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Share of people over age 65</text>
+<text x="486" y="520" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">WorldPop</text>
+<line x1="40" x2="490" y1="527" y2="527" stroke="#6741d9" stroke-opacity=".25"/>
+<text x="44" y="545" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Crowding</text>
+<text x="486" y="545" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">WorldPop + WorldCover</text>
+<line x1="40" x2="490" y1="552" y2="552" stroke="#6741d9" stroke-opacity=".25"/>
+<text x="44" y="570" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Temporary / one-room housing</text>
+<text x="486" y="570" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">2011 Census</text>
+<path d="M504,515.0 H574" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="580" y="487.0" width="200" height="56" rx="28" fill="#6741d9"/>
+<text x="680" y="511.0" font-size="15.5" font-weight="700" fill="#fff" text-anchor="middle" >Sensitivity score</text>
+<text x="680" y="530.0" font-size="12.5" font-weight="400" fill="#fff" text-anchor="middle" >0–100</text>
+<rect x="30" y="599" width="470" height="165" rx="9" fill="#e8f5ea" stroke="#237a37" stroke-width="2"/>
+<path d="M30,608 a9,9 0 0 1 9,-9 h452 a9,9 0 0 1 9,9 v23 h-470 z" fill="#237a37"/>
+<text x="44" y="621" font-size="16" font-weight="700" fill="#fff" text-anchor="start" >Ability to cope</text>
+<text x="486" y="621" font-size="12.5" font-weight="400" fill="#ffffff" text-anchor="end" >5 indicators</text>
+<text x="44" y="649" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Travel time to nearest hospital</text>
+<text x="486" y="649" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">OpenStreetMap</text>
+<line x1="40" x2="490" y1="656" y2="656" stroke="#237a37" stroke-opacity=".25"/>
+<text x="44" y="674" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Hospitals per 100,000 people</text>
+<text x="486" y="674" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">OpenStreetMap</text>
+<line x1="40" x2="490" y1="681" y2="681" stroke="#237a37" stroke-opacity=".25"/>
+<text x="44" y="699" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Tree cover</text>
+<text x="486" y="699" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">ESA WorldCover</text>
+<line x1="40" x2="490" y1="706" y2="706" stroke="#237a37" stroke-opacity=".25"/>
+<text x="44" y="724" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Household assets</text>
+<text x="486" y="724" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">2011 Census</text>
+<line x1="40" x2="490" y1="731" y2="731" stroke="#237a37" stroke-opacity=".25"/>
+<text x="44" y="749" font-size="14" font-weight="400" fill="#1c1c1a" text-anchor="start" >Homes with treated tap water</text>
+<text x="486" y="749" font-size="12" font-weight="400" fill="#55554f" text-anchor="end" font-style="italic">2011 Census</text>
+<path d="M504,681.5 H574" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="580" y="653.5" width="200" height="56" rx="28" fill="#237a37"/>
+<text x="680" y="677.5" font-size="15.5" font-weight="700" fill="#fff" text-anchor="middle" >Ability to cope score</text>
+<text x="680" y="696.5" font-size="12.5" font-weight="400" fill="#fff" text-anchor="middle" >0–100</text>
+<rect x="860" y="385.0" width="180" height="206" rx="9" fill="#fff" stroke="#3b3b36" stroke-width="2"/>
+<text x="950" y="411.0" font-size="15" font-weight="700" fill="#1c1c1a" text-anchor="middle" >Equal weights</text>
+<text x="950" y="429.0" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="middle" >added together</text>
+<rect x="878" y="447.0" width="144" height="26" rx="5" fill="#c2410c"/>
+<text x="950" y="465.0" font-size="14" font-weight="700" fill="#fff" text-anchor="middle" >25%</text>
+<path d="M784,269.5 L872,460.0" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="878" y="483.0" width="144" height="26" rx="5" fill="#1864ab"/>
+<text x="950" y="501.0" font-size="14" font-weight="700" fill="#fff" text-anchor="middle" >25%</text>
+<path d="M784,386.0 L872,496.0" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="878" y="519.0" width="144" height="26" rx="5" fill="#6741d9"/>
+<text x="950" y="537.0" font-size="14" font-weight="700" fill="#fff" text-anchor="middle" >25%</text>
+<path d="M784,515.0 L872,532.0" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="878" y="555.0" width="144" height="26" rx="5" fill="#237a37"/>
+<text x="950" y="573.0" font-size="14" font-weight="700" fill="#fff" text-anchor="middle" >25%</text>
+<path d="M784,681.5 L872,568.0" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="1110" y="212" width="270" height="82" rx="9" fill="#fff" stroke="#3b3b36" stroke-width="2"/>
+<text x="1245.0" y="242" font-size="18" font-weight="700" fill="#1c1c1a" text-anchor="middle" >Vulnerability score</text>
+<text x="1245.0" y="262" font-size="13" font-weight="400" fill="#55554f" text-anchor="middle" >0–100 for every ward</text>
+<text x="1245.0" y="279" font-size="13" font-weight="400" fill="#55554f" text-anchor="middle" >higher = more vulnerable</text>
+<path d="M1044,488.0 H1074 V253.0 H1104" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)"/>
+<path d="M1245.0,298 V318" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="1110" y="324" width="270" height="32" rx="7" fill="#ffffcc" stroke="#00000030"/>
+<text x="1245.0" y="345" font-size="15" font-weight="700" fill="#1c1c1a" text-anchor="middle" >Low</text>
+<rect x="1110" y="362" width="270" height="32" rx="7" fill="#fed976" stroke="#00000030"/>
+<text x="1245.0" y="383" font-size="15" font-weight="700" fill="#1c1c1a" text-anchor="middle" >Moderate</text>
+<rect x="1110" y="400" width="270" height="32" rx="7" fill="#fd8d3c" stroke="#00000030"/>
+<text x="1245.0" y="421" font-size="15" font-weight="700" fill="#1c1c1a" text-anchor="middle" >High</text>
+<rect x="1110" y="438" width="270" height="32" rx="7" fill="#e31a1c" stroke="#00000030"/>
+<text x="1245.0" y="459" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle" >Very High</text>
+<rect x="1110" y="476" width="270" height="32" rx="7" fill="#800026" stroke="#00000030"/>
+<text x="1245.0" y="497" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle" >Extreme</text>
+<text x="1110" y="532" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >Each class holds about one fifth of the wards.</text>
+<text x="1110" y="548" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >"Extreme" means more vulnerable than the</text>
+<text x="1110" y="564" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >other Delhi wards, not a fixed danger level.</text>
+<rect x="1110" y="604" width="270" height="128" rx="9" fill="#fff" stroke="#3b3b36" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="1124" y="628" font-size="14.5" font-weight="700" fill="#1c1c1a" text-anchor="start" >Checked against</text>
+<text x="1124" y="650" font-size="12.5" font-weight="400" fill="#33332f" text-anchor="start" >• Delhi Heat Action Plan 2025 and a CSE</text>
+<text x="1124" y="666" font-size="12.5" font-weight="400" fill="#33332f" text-anchor="start" >  study: named high-risk wards rank above</text>
+<text x="1124" y="682" font-size="12.5" font-weight="400" fill="#33332f" text-anchor="start" >  low-heat-stress wards in 94% of pairs</text>
+<text x="1124" y="698" font-size="12.5" font-weight="400" fill="#33332f" text-anchor="start" >• Shifting the group weights by ±30%</text>
+<text x="1124" y="714" font-size="12.5" font-weight="400" fill="#33332f" text-anchor="start" >  barely changes the ranking</text>
+<path d="M1245.0,582 V598" fill="none" stroke="#3b3b36" stroke-width="2" marker-end="url(#ah)" stroke-dasharray="5 4"/>
+<text x="30" y="798" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >Data: Landsat 8 &amp; 9 (2019–2025), ESA WorldCover, WorldPop 2020, OpenStreetMap, Census of India 2011.</text>
+<text x="30" y="816" font-size="12.5" font-weight="400" fill="#55554f" text-anchor="start" >Ranks are flipped where less is riskier (for example, less tree cover). Census figures are from 2011 and hospital travel time is an estimate.</text>
+</svg>
