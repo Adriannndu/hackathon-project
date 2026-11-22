@@ -6,6 +6,35 @@ not a forecast, not a probability of harm, and has **not** been validated agains
 heat-illness data. Open `outputs/report/index.html` in a browser for the map and
 per-ward explanations (works offline, no libraries).
 
+The page also has a **"Your heat risk"** panel: for the user's location ("Use my location")
+or any ward picked on the map, it fetches a 7-day forecast and says whether a heat wave is
+coming, then combines that with the ward's risk class (see "Heat outlook" below). That part
+needs an internet connection; the rest of the page works offline.
+
+## Heat outlook (in `make_report.py`, runs in the browser)
+- **Forecast:** Open-Meteo forecast API (no key) at the user's position, or at a point inside
+  the chosen ward: daily max/min and feels-like max, 2 past days + today + 6 days.
+- **Heat-wave rule:** the IMD rule from `hw_pipeline/config.py`. A hot day is at least 40 °C
+  and at least 4.5 °C above Delhi's normal for that date, or at least 45 °C. A heat wave is
+  2 or more hot days in a row. It is severe at 6.5 °C above normal, or at 47 °C or more.
+  Normals come from `inputs/delhi_tmax_normals.csv` (New Delhi, 2000–2017, the pipeline's method).
+- **Combined risk** (worst day in the next 7 days x ward class):
+
+  | Forecast | Ward Low / Moderate | Ward High | Ward Very High / Extreme |
+  |---|---|---|---|
+  | No day of 40 °C+ | No risk | No risk | No risk |
+  | Hot (40 °C+), no heat wave | Low | Low | Medium |
+  | Heat wave | Medium | High | High |
+  | Severe heat wave | High | High | High |
+- **Outside Delhi:** no forecast or risk is shown. The normals and ward scores are Delhi-only.
+- **Demo mode** (checkbox, or `?demo=1`): replays the observed 22–30 May 2024 Delhi heat wave
+  (`inputs/demo_may2024.csv`) as if 24 May were today. For testing, `?lat=..&lon=..` stands in
+  for a GPS position and `?ward=<ward_id>` picks a ward.
+- **Not used:** the trained 1–3 day model in `hw_pipeline/`. It needs inputs from many cities that a
+  web page can't fetch, and the weather model's own forecast is the stronger signal at these ranges.
+- **Limits:** the forecast is a weather model's, not IMD's, and it is compared with a reanalysis
+  normal, so it may be slightly biased. One set of Delhi normals is used for every ward.
+
 ## How the score works (`area_model.py`)
 Four groups, 25% each; every indicator is turned into a percentile rank among wards:
 
@@ -30,6 +59,7 @@ python collect_satellite.py     # land cover + Landsat per ward -> inputs/ward_l
 python build_census.py          # -> inputs/ward_census.csv
 python build_inputs.py          # merges everything -> inputs/ward_data.csv
 python area_model.py            # -> outputs/risk_v2/ (ward_risk.csv, ward_risk.geojson, summary.json)
+python build_forecast_inputs.py # Delhi normals + demo days -> inputs/ (needs ../data/raw/new_delhi.csv from data_bundle.tgz)
 python make_report.py           # -> outputs/report/index.html
 ```
 `data/` (raw downloads) is git-ignored; `inputs/` and `outputs/` are small and committed.
